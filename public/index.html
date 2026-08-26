@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Budgo</title>
+    <meta
+      name="description"
+      content="Tu presupuesto marca el camino. Budgo encuentra el alojamiento perfecto."
+    />
+    <link rel="icon" href="/budgo-logo.png" />
+    <style>
+      :root {
+        --blue: #0156a6;
+        --blue-dark: #01408d;
+        --turquoise: #18c4c7;
+        --page: #f4f8fa;
+        --text: #0f172a;
+        --muted: #64748b;
+        --line: #dbe5ea;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--page);
+        color: var(--text);
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+
+      a {
+        text-decoration: none;
+      }
+
+      .hero {
+        background: var(--blue);
+        color: white;
+        padding: 20px 42px 48px;
+      }
+
+      .wrap {
+        max-width: 1280px;
+        margin: 0 auto;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .logo {
+        width: min(330px, 76vw);
+        height: 96px;
+        object-fit: contain;
+        background: white;
+        border-radius: 6px;
+        padding: 8px;
+      }
+
+      .tag {
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 6px;
+        padding: 10px 14px;
+        color: rgba(255, 255, 255, 0.84);
+        font-size: 14px;
+      }
+
+      .claim {
+        margin-top: 54px;
+        max-width: 880px;
+        font-size: clamp(28px, 5vw, 46px);
+        line-height: 1.12;
+        font-weight: 800;
+        color: rgba(255, 255, 255, 0.92);
+      }
+
+      .search-shell {
+        margin: -28px auto 0;
+        max-width: 1280px;
+        padding: 0 22px;
+      }
+
+      .search {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1.25fr 1fr 1fr 145px;
+        overflow: hidden;
+        border: 2px solid var(--turquoise);
+        border-radius: 7px;
+        background: white;
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.16);
+      }
+
+      .field {
+        min-height: 74px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 12px 16px;
+        border-right: 1px solid var(--line);
+      }
+
+      .field span {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .field input,
+      .field select {
+        width: 100%;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        margin-top: 6px;
+        font-size: 17px;
+        font-weight: 800;
+        color: var(--text);
+      }
+
+      .dates {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .search button {
+        border: 0;
+        background: #0076e8;
+        color: white;
+        font-size: 21px;
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      .search button:hover {
+        background: var(--blue-dark);
+      }
+
+      .layout {
+        max-width: 1280px;
+        margin: 30px auto;
+        padding: 0 22px;
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 24px;
+      }
+
+      .panel,
+      .card,
+      .empty {
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+      }
+
+      .panel {
+        padding: 20px;
+        align-self: start;
+      }
+
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .age-row {
+        display: grid;
+        grid-template-columns: 1fr 86px 34px;
+        gap: 8px;
+        align-items: center;
+        margin-top: 12px;
+      }
+
+      .age-row input {
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        padding: 10px;
+        text-align: right;
+        font-weight: 800;
+      }
+
+      .mini-button,
+      .add-button {
+        border: 1px solid var(--turquoise);
+        color: var(--blue);
+        background: white;
+        border-radius: 6px;
+        padding: 9px 12px;
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      .mini-button {
+        padding: 8px;
+      }
+
+      .notice {
+        margin-top: 18px;
+        background: #eafbfb;
+        border-radius: 7px;
+        padding: 14px;
+        color: #334155;
+        font-size: 14px;
+      }
+
+      .extra {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        padding: 12px;
+        margin-top: 10px;
+        font-weight: 700;
+      }
+
+      .extra input {
+        width: 20px;
+        height: 20px;
+        accent-color: var(--turquoise);
+      }
+
+      .results-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+
+      .cheap {
+        background: white;
+        border-radius: 7px;
+        padding: 12px 14px;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+        font-size: 14px;
+      }
+
+      .list {
+        display: grid;
+        gap: 16px;
+      }
+
+      .card {
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 250px 1fr;
+      }
+
+      .card img {
+        width: 100%;
+        height: 100%;
+        min-height: 250px;
+        object-fit: cover;
+      }
+
+      .card-body {
+        padding: 20px;
+      }
+
+      .card-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .rank {
+        color: var(--blue);
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .price {
+        color: var(--blue);
+        font-size: 31px;
+        font-weight: 900;
+        text-align: right;
+      }
+
+      .hotel {
+        margin-top: 14px;
+        border-radius: 7px;
+        background: #f8fafc;
+        padding: 14px;
+      }
+
+      .bar {
+        height: 8px;
+        overflow: hidden;
+        background: #e2e8f0;
+        border-radius: 99px;
+        margin-top: 12px;
+      }
+
+      .bar div {
+        height: 100%;
+        background: var(--turquoise);
+      }
+
+      .breakdown {
+        margin-top: 14px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
+      .breakdown div {
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        padding: 10px;
+      }
+
+      .breakdown small {
+        display: block;
+        color: var(--muted);
+      }
+
+      .card-foot {
+        margin-top: 18px;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .booking {
+        background: var(--blue);
+        color: white;
+        border-radius: 7px;
+        padding: 12px 16px;
+        font-weight: 800;
+      }
+
+      .empty {
+        padding: 36px;
+        text-align: center;
+      }
+
+      @media (max-width: 980px) {
+        .search,
+        .layout,
+        .card {
+          grid-template-columns: 1fr;
+        }
+
+        .field {
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+
+        .search button {
+          min-height: 68px;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .hero {
+          padding: 18px 18px 42px;
+        }
+
+        .breakdown {
+          grid-template-columns: 1fr;
+        }
+
+        .price {
+          text-align: left;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <div class="wrap">
+          <header class="topbar">
+            <img class="logo" src="/budgo-logo.png" alt="Budgo" />
+            <div class="tag">Tu presupuesto marca el camino</div>
+          </header>
+          <p class="claim">
+            Dinos cuanto quieres gastar y Budgo encuentra el viaje que encaja contigo.
+          </p>
+        </div>
+      </section>
+
+      <section class="search-shell">
+        <form id="search" class="search">
+          <label class="field">
+            <span>Inicio del viaje</span>
+            <select id="tripStart">
+              <option>Madrid</option>
+              <option>Barcelona</option>
+              <option>Valencia</option>
+              <option>Sevilla</option>
+              <option>Bilbao</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Presupuesto</span>
+            <input id="budget" type="number" min="100" step="50" value="1800" />
+          </label>
+          <label class="field">
+            <span>Fechas</span>
+            <div class="dates">
+              <input id="startDate" type="date" />
+              <input id="endDate" type="date" />
+            </div>
+          </label>
+          <label class="field">
+            <span>Ocupacion</span>
+            <strong id="occupancy">2 adultos - 0 ninos</strong>
+          </label>
+          <label class="field">
+            <span>Tipo</span>
+            <select id="destinationType">
+              <option>Todos</option>
+              <option>Costa</option>
+              <option>Montana</option>
+              <option>Ciudad</option>
+              <option>Nieve</option>
+            </select>
+          </label>
+          <button type="submit">Buscar</button>
+        </form>
+      </section>
+
+      <section class="layout">
+        <aside class="panel">
+          <div style="display:flex; justify-content:space-between; gap:12px; align-items:center;">
+            <div>
+              <h2>Viajeros</h2>
+              <p class="muted">Indica edades para ajustar precios.</p>
+            </div>
+            <button id="addTraveler" class="add-button" type="button">Anadir</button>
+          </div>
+          <div id="travelerRows"></div>
+          <div class="notice">
+            Por defecto se calcula solo alojamiento. Activa extras si quieres sumar vuelos o coche.
+          </div>
+          <h3 style="margin-top:22px; font-size:14px; text-transform:uppercase; color:#64748b;">
+            Extras opcionales
+          </h3>
+          <label class="extra">Vuelos <input id="flights" type="checkbox" /></label>
+          <label class="extra">Coche <input id="carRental" type="checkbox" /></label>
+        </aside>
+
+        <section>
+          <div class="results-head">
+            <div>
+              <h2>Todos los destinos disponibles</h2>
+              <p id="resultsCopy" class="muted">
+                Precio base de alojamiento ordenado de menor a mayor.
+              </p>
+            </div>
+            <div id="cheapest" class="cheap"></div>
+          </div>
+          <div id="results" class="list"></div>
+        </section>
+      </section>
+    </main>
+
+    <script>
+      const destinations = [
+        {
+          id: "porto",
+          name: "Oporto",
+          country: "Portugal",
+          type: "Ciudad",
+          climate: "Atlantico suave",
+          image: "https://images.unsplash.com/photo-1555881400-74d7acaacd8b?auto=format&fit=crop&w=900&q=80",
+          flight: 86,
+          baseNight: 74,
+          carDaily: 25,
+          hotels: [
+            ["Moov Hotel Porto Centro", "Hotel funcional", "Solo alojamiento", 0.86],
+            ["Legendary Porto Hotel", "Hotel recomendado", "Desayuno opcional", 1],
+            ["PortoBay Teatro", "Hotel superior", "Mejor valoracion", 1.22],
+          ],
+        },
+        {
+          id: "granada",
+          name: "Granada",
+          country: "Espana",
+          type: "Ciudad",
+          climate: "Historico y cultural",
+          image: "https://images.unsplash.com/photo-1568849676085-51415703900f?auto=format&fit=crop&w=900&q=80",
+          flight: 72,
+          baseNight: 76,
+          carDaily: 22,
+          hotels: [
+            ["Hotel Inglaterra Granada", "Hotel historico", "Solo alojamiento", 0.86],
+            ["Eurostars Catedral", "Hotel recomendado", "Desayuno incluido", 1],
+            ["Palacio de Santa Ines", "Hotel con encanto", "Mejor ubicacion", 1.22],
+          ],
+        },
+        {
+          id: "valencia",
+          name: "Valencia",
+          country: "Espana",
+          type: "Costa",
+          climate: "Mediterraneo urbano",
+          image: "https://images.unsplash.com/photo-1583422409516-2895a77efded?auto=format&fit=crop&w=900&q=80",
+          flight: 68,
+          baseNight: 82,
+          carDaily: 24,
+          hotels: [
+            ["Casual Vintage Valencia", "Hotel centrico", "Solo alojamiento", 0.86],
+            ["Hotel Kramer Valencia", "Hotel recomendado", "Desayuno opcional", 1],
+            ["Helen Berger Boutique Hotel", "Boutique superior", "Mejor valoracion", 1.22],
+          ],
+        },
+        {
+          id: "tenerife",
+          name: "Tenerife",
+          country: "Espana",
+          type: "Costa",
+          climate: "Primavera todo el ano",
+          image: "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=900&q=80",
+          flight: 132,
+          baseNight: 88,
+          carDaily: 31,
+          hotels: [
+            ["Hotel Principe Paz", "Hotel urbano", "Solo alojamiento", 0.86],
+            ["H10 Tenerife Playa", "Hotel costa", "Desayuno incluido", 1],
+            ["Hotel Botanico & The Oriental Spa Garden", "Resort superior", "Mejor valoracion", 1.22],
+          ],
+        },
+        {
+          id: "lisbon",
+          name: "Lisboa",
+          country: "Portugal",
+          type: "Ciudad",
+          climate: "Atlantico luminoso",
+          image: "https://images.unsplash.com/photo-1548707309-dcebeab9ea9b?auto=format&fit=crop&w=900&q=80",
+          flight: 92,
+          baseNight: 96,
+          carDaily: 28,
+          hotels: [
+            ["Hotel Gat Rossio", "Hotel centrico", "Solo alojamiento", 0.86],
+            ["Lisboa Pessoa Hotel", "Hotel recomendado", "Desayuno incluido", 1],
+            ["Memmo Alfama", "Boutique superior", "Mejor ubicacion", 1.22],
+          ],
+        },
+        {
+          id: "algarve",
+          name: "Algarve",
+          country: "Portugal",
+          type: "Costa",
+          climate: "Playas y acantilados",
+          image: "https://images.unsplash.com/photo-1599677101131-8a428b29d04b?auto=format&fit=crop&w=900&q=80",
+          flight: 112,
+          baseNight: 104,
+          carDaily: 34,
+          hotels: [
+            ["Hotel Sol Algarve", "Hotel economico", "Solo alojamiento", 0.86],
+            ["AP Eva Senses", "Hotel costa", "Desayuno incluido", 1],
+            ["Tivoli Carvoeiro Algarve Resort", "Resort superior", "Mejor valoracion", 1.22],
+          ],
+        },
+      ];
+
+      let travelers = [
+        { id: 1, age: 35 },
+        { id: 2, age: 34 },
+      ];
+
+      const money = (value) =>
+        new Intl.NumberFormat("es-ES", {
+          style: "currency",
+          currency: "EUR",
+          maximumFractionDigits: 0,
+        }).format(value);
+
+      function initDates() {
+        const start = new Date();
+        start.setDate(start.getDate() + 35);
+        const end = new Date(start);
+        end.setDate(start.getDate() + 4);
+        document.querySelector("#startDate").value = start.toISOString().slice(0, 10);
+        document.querySelector("#endDate").value = end.toISOString().slice(0, 10);
+      }
+
+      function nights() {
+        const start = new Date(document.querySelector("#startDate").value + "T00:00:00");
+        const end = new Date(document.querySelector("#endDate").value + "T00:00:00");
+        return Math.max(0, Math.round((end - start) / 86400000));
+      }
+
+      function travelerWeight() {
+        return Math.max(
+          1,
+          travelers.reduce((total, traveler) => {
+            if (traveler.age < 2) return total + 0.15;
+            if (traveler.age < 12) return total + 0.6;
+            if (traveler.age < 18) return total + 0.8;
+            return total + 1;
+          }, 0),
+        );
+      }
+
+      function adultCount() {
+        return travelers.filter((traveler) => traveler.age >= 18).length;
+      }
+
+      function childCount() {
+        return travelers.filter((traveler) => traveler.age < 18).length;
+      }
+
+      function bookingUrl(destination) {
+        const params = new URLSearchParams({
+          ss: destination.name + " " + destination.country,
+          checkin: document.querySelector("#startDate").value,
+          checkout: document.querySelector("#endDate").value,
+          group_adults: String(Math.max(1, adultCount())),
+          group_children: String(childCount()),
+          no_rooms: "1",
+        });
+        return "https://www.booking.com/searchresults.es.html?" + params.toString();
+      }
+
+      function buildOptions() {
+        const budget = Number(document.querySelector("#budget").value || 0);
+        const type = document.querySelector("#destinationType").value;
+        const includeFlights = document.querySelector("#flights").checked;
+        const includeCar = document.querySelector("#carRental").checked;
+        const countNights = nights();
+        const weight = travelerWeight();
+
+        if (countNights <= 0) return [];
+
+        return destinations
+          .filter((destination) => type === "Todos" || destination.type === type)
+          .flatMap((destination) =>
+            destination.hotels.map(([hotel, category, board, factor]) => {
+              const nightly = Math.round(destination.baseNight * factor);
+              const accommodation = Math.round(nightly * countNights * Math.max(1, weight / 2));
+              const flights = includeFlights ? Math.round(destination.flight * weight) : 0;
+              const car = includeCar ? Math.round(destination.carDaily * countNights) : 0;
+              const total = accommodation + flights + car;
+              return {
+                destination,
+                hotel,
+                category,
+                board,
+                nightly,
+                accommodation,
+                flights,
+                car,
+                total,
+                perPerson: Math.round(total / Math.max(1, travelers.length)),
+                remaining: budget - total,
+              };
+            }),
+          )
+          .filter((option) => option.total <= budget)
+          .sort((a, b) => a.total - b.total);
+      }
+
+      function renderTravelers() {
+        const rows = document.querySelector("#travelerRows");
+        rows.innerHTML = "";
+        travelers.forEach((traveler, index) => {
+          const row = document.createElement("div");
+          row.className = "age-row";
+          row.innerHTML = `
+            <strong>Persona ${index + 1}</strong>
+            <input type="number" min="0" max="99" value="${traveler.age}" aria-label="Edad persona ${index + 1}">
+            <button class="mini-button" type="button" aria-label="Quitar persona ${index + 1}">-</button>
+          `;
+          row.querySelector("input").addEventListener("input", (event) => {
+            traveler.age = Math.max(0, Math.min(99, Number(event.target.value || 0)));
+            render();
+          });
+          row.querySelector("button").addEventListener("click", () => {
+            if (travelers.length === 1) return;
+            travelers = travelers.filter((item) => item.id !== traveler.id);
+            render();
+          });
+          rows.appendChild(row);
+        });
+
+        document.querySelector("#occupancy").textContent =
+          adultCount() + " adultos - " + childCount() + " ninos";
+      }
+
+      function renderResults() {
+        const budget = Number(document.querySelector("#budget").value || 0);
+        const options = buildOptions();
+        const results = document.querySelector("#results");
+        const active = [];
+        if (document.querySelector("#flights").checked) active.push("vuelos");
+        if (document.querySelector("#carRental").checked) active.push("coche");
+        document.querySelector("#resultsCopy").textContent =
+          "Precio base de alojamiento" +
+          (active.length ? " + " + active.join(", ") : "") +
+          " ordenado de menor a mayor.";
+
+        document.querySelector("#cheapest").innerHTML = options[0]
+          ? `Mas economico: <strong>${options[0].destination.name}</strong> - ${money(options[0].total)}`
+          : "";
+
+        if (!options.length) {
+          results.innerHTML = `
+            <div class="empty">
+              <h3>No hay destinos dentro del presupuesto</h3>
+              <p class="muted">Sube el importe, reduce noches o prueba otro tipo de destino.</p>
+            </div>`;
+          return;
+        }
+
+        results.innerHTML = options
+          .map((option, index) => {
+            const percent = Math.min(100, Math.round((option.total / budget) * 100));
+            return `
+              <article class="card">
+                <img src="${option.destination.image}" alt="${option.destination.name}, ${option.destination.country}">
+                <div class="card-body">
+                  <div class="card-top">
+                    <div>
+                      <div class="rank">#${index + 1} - Solo alojamiento - ${option.destination.type} - Demo</div>
+                      <h3>${option.destination.name}, ${option.destination.country}</h3>
+                      <p class="muted">${option.destination.climate}</p>
+                    </div>
+                    <div>
+                      <div class="price">${money(option.total)}</div>
+                      <div class="muted">${money(option.perPerson)} por persona</div>
+                    </div>
+                  </div>
+                  <div class="hotel">
+                    <strong>${option.hotel}</strong>
+                    <p class="muted" style="margin:6px 0 0;">${option.category} - ${option.board} - ${money(option.nightly)}/noche</p>
+                    <div class="bar"><div style="width:${percent}%"></div></div>
+                  </div>
+                  <div class="breakdown">
+                    <div><small>Vuelos</small><strong>${money(option.flights)}</strong></div>
+                    <div><small>Alojamiento</small><strong>${money(option.accommodation)}</strong></div>
+                    <div><small>Coche</small><strong>${money(option.car)}</strong></div>
+                  </div>
+                  <div class="card-foot">
+                    <span class="muted">${nights()} noches desde ${document.querySelector("#tripStart").value} para ${travelers.length} personas</span>
+                    <a class="booking" href="${bookingUrl(option.destination)}" target="_blank" rel="noreferrer">Ver en Booking</a>
+                  </div>
+                </div>
+              </article>
+            `;
+          })
+          .join("");
+      }
+
+      function render() {
+        renderTravelers();
+        renderResults();
+      }
+
+      document.querySelector("#addTraveler").addEventListener("click", () => {
+        travelers.push({ id: Math.max(...travelers.map((item) => item.id)) + 1, age: 30 });
+        render();
+      });
+      document.querySelector("#search").addEventListener("submit", (event) => {
+        event.preventDefault();
+        render();
+      });
+      ["budget", "startDate", "endDate", "tripStart", "destinationType", "flights", "carRental"].forEach((id) => {
+        document.querySelector("#" + id).addEventListener("change", render);
+      });
+
+      initDates();
+      render();
+    </script>
+  </body>
+</html>
