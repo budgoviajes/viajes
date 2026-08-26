@@ -36,6 +36,33 @@ const serviceOptions = [
   { key: "carRental", label: "Coche" },
 ] as const;
 
+const legalSections = {
+  legal: {
+    title: "Aviso legal",
+    body: [
+      "Budgo.es es una plataforma informativa de busqueda y comparacion orientativa de alojamientos y viajes en Espana y Portugal.",
+      "La informacion mostrada en esta web tiene caracter demostrativo o informativo. Los precios, disponibilidades, condiciones y servicios finales deben confirmarse siempre en la plataforma de reserva correspondiente antes de contratar.",
+      "Budgo no actua como agencia de viajes ni formaliza reservas directamente. Los enlaces externos pueden dirigir a terceros, como plataformas de alojamiento, que aplican sus propias condiciones legales y comerciales.",
+    ],
+  },
+  privacy: {
+    title: "Politica de privacidad",
+    body: [
+      "Budgo.es solo solicita los datos necesarios para realizar la simulacion de busqueda: presupuesto, fechas, origen del viaje, tipo de destino y edades de los viajeros.",
+      "Estos datos se utilizan para calcular resultados orientativos dentro de la propia experiencia de busqueda. No se solicitan datos bancarios, documentos identificativos ni informacion especialmente sensible.",
+      "Si en el futuro Budgo incorpora formularios de contacto, cuentas de usuario o integraciones reales con proveedores, se informara de forma clara sobre el responsable del tratamiento, finalidad, base legal, conservacion y derechos de acceso, rectificacion, supresion, oposicion, limitacion y portabilidad.",
+    ],
+  },
+  cookies: {
+    title: "Politica de cookies",
+    body: [
+      "Budgo.es puede utilizar cookies tecnicas necesarias para el funcionamiento correcto de la pagina y para recordar preferencias basicas de navegacion.",
+      "En esta version no se configuran cookies publicitarias ni de analitica avanzada desde Budgo. Los enlaces externos, como los que apuntan a plataformas de reserva, pueden utilizar sus propias cookies al abrirse en una nueva pagina.",
+      "Si en el futuro se incorporan herramientas de analitica, publicidad o personalizacion, Budgo mostrara un aviso de cookies para que el usuario pueda aceptar, rechazar o configurar sus preferencias.",
+    ],
+  },
+} as const;
+
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("es-ES", {
     style: "currency",
@@ -85,6 +112,7 @@ export default function Home() {
   const [response, setResponse] = useState<SearchResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [activeLegal, setActiveLegal] = useState<keyof typeof legalSections>("legal");
 
   const requestPayload = useMemo(
     () => ({
@@ -467,6 +495,46 @@ export default function Home() {
           </section>
         </div>
       </section>
+
+      <footer className="border-t border-slate-200 bg-white px-4 py-8 sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="text-xl font-bold text-[#0156A6]">budgo.es</p>
+              <p className="mt-1 text-sm text-slate-500">
+                Tu presupuesto marca el camino.
+              </p>
+            </div>
+            <nav className="flex flex-wrap gap-2" aria-label="Informacion legal">
+              {Object.entries(legalSections).map(([key, section]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setActiveLegal(key as keyof typeof legalSections)}
+                  className={`rounded-md border px-4 py-2 text-sm font-bold transition ${
+                    activeLegal === key
+                      ? "border-[#18C4C7] bg-[#EAFBFB] text-[#0156A6]"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-[#18C4C7]"
+                  }`}
+                >
+                  {section.title}
+                </button>
+              ))}
+            </nav>
+          </div>
+
+          <section className="mt-6 rounded-md border border-slate-200 bg-slate-50 p-5">
+            <h2 className="text-lg font-bold text-slate-900">
+              {legalSections[activeLegal].title}
+            </h2>
+            <div className="mt-3 grid gap-3 text-sm leading-relaxed text-slate-600">
+              {legalSections[activeLegal].body.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
+          </section>
+        </div>
+      </footer>
     </main>
   );
 }

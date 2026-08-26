@@ -368,6 +368,62 @@
         font-weight: 800;
       }
 
+      .site-footer {
+        border-top: 1px solid var(--line);
+        background: white;
+        padding: 34px 22px;
+      }
+
+      .footer-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .footer-brand {
+        margin: 0;
+        color: var(--blue);
+        font-size: 22px;
+        font-weight: 900;
+      }
+
+      .legal-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .legal-nav button {
+        border: 1px solid var(--line);
+        background: white;
+        color: #475569;
+        border-radius: 7px;
+        padding: 10px 14px;
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      .legal-nav button.active {
+        border-color: var(--turquoise);
+        background: #eafbfb;
+        color: var(--blue);
+      }
+
+      .legal-panel {
+        margin-top: 22px;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        background: #f8fafc;
+        padding: 20px;
+      }
+
+      .legal-panel p {
+        color: #475569;
+        line-height: 1.7;
+      }
+
       .empty {
         padding: 36px;
         text-align: center;
@@ -501,9 +557,56 @@
           <div id="results" class="list"></div>
         </section>
       </section>
+
+      <footer class="site-footer">
+        <div class="wrap">
+          <div class="footer-top">
+            <div>
+              <p class="footer-brand">budgo.es</p>
+              <p class="muted" style="margin:6px 0 0;">Tu presupuesto marca el camino.</p>
+            </div>
+            <nav class="legal-nav" aria-label="Informacion legal">
+              <button type="button" class="active" data-legal="legal">Aviso legal</button>
+              <button type="button" data-legal="privacy">Politica de privacidad</button>
+              <button type="button" data-legal="cookies">Politica de cookies</button>
+            </nav>
+          </div>
+          <section class="legal-panel" aria-live="polite">
+            <h2 id="legalTitle">Aviso legal</h2>
+            <div id="legalBody"></div>
+          </section>
+        </div>
+      </footer>
     </main>
 
     <script>
+      const legalSections = {
+        legal: {
+          title: "Aviso legal",
+          body: [
+            "Budgo.es es una plataforma informativa de busqueda y comparacion orientativa de alojamientos y viajes en Espana y Portugal.",
+            "La informacion mostrada en esta web tiene caracter demostrativo o informativo. Los precios, disponibilidades, condiciones y servicios finales deben confirmarse siempre en la plataforma de reserva correspondiente antes de contratar.",
+            "Budgo no actua como agencia de viajes ni formaliza reservas directamente. Los enlaces externos pueden dirigir a terceros, como plataformas de alojamiento, que aplican sus propias condiciones legales y comerciales.",
+          ],
+        },
+        privacy: {
+          title: "Politica de privacidad",
+          body: [
+            "Budgo.es solo solicita los datos necesarios para realizar la simulacion de busqueda: presupuesto, fechas, origen del viaje, tipo de destino y edades de los viajeros.",
+            "Estos datos se utilizan para calcular resultados orientativos dentro de la propia experiencia de busqueda. No se solicitan datos bancarios, documentos identificativos ni informacion especialmente sensible.",
+            "Si en el futuro Budgo incorpora formularios de contacto, cuentas de usuario o integraciones reales con proveedores, se informara de forma clara sobre el responsable del tratamiento, finalidad, base legal, conservacion y derechos de acceso, rectificacion, supresion, oposicion, limitacion y portabilidad.",
+          ],
+        },
+        cookies: {
+          title: "Politica de cookies",
+          body: [
+            "Budgo.es puede utilizar cookies tecnicas necesarias para el funcionamiento correcto de la pagina y para recordar preferencias basicas de navegacion.",
+            "En esta version no se configuran cookies publicitarias ni de analitica avanzada desde Budgo. Los enlaces externos, como los que apuntan a plataformas de reserva, pueden utilizar sus propias cookies al abrirse en una nueva pagina.",
+            "Si en el futuro se incorporan herramientas de analitica, publicidad o personalizacion, Budgo mostrara un aviso de cookies para que el usuario pueda aceptar, rechazar o configurar sus preferencias.",
+          ],
+        },
+      };
+
       const destinations = [
         {
           id: "porto",
@@ -791,6 +894,17 @@
           .join("");
       }
 
+      function renderLegal(sectionKey) {
+        const section = legalSections[sectionKey] || legalSections.legal;
+        document.querySelector("#legalTitle").textContent = section.title;
+        document.querySelector("#legalBody").innerHTML = section.body
+          .map((paragraph) => `<p>${paragraph}</p>`)
+          .join("");
+        document.querySelectorAll("[data-legal]").forEach((button) => {
+          button.classList.toggle("active", button.dataset.legal === sectionKey);
+        });
+      }
+
       function render() {
         renderTravelers();
         renderResults();
@@ -807,9 +921,13 @@
       ["budget", "startDate", "endDate", "tripStart", "destinationType", "flights", "carRental"].forEach((id) => {
         document.querySelector("#" + id).addEventListener("change", render);
       });
+      document.querySelectorAll("[data-legal]").forEach((button) => {
+        button.addEventListener("click", () => renderLegal(button.dataset.legal));
+      });
 
       initDates();
       render();
+      renderLegal("legal");
     </script>
   </body>
 </html>
