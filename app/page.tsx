@@ -165,25 +165,26 @@ export default function Home() {
     <main className="min-h-screen bg-[#F4F8FA] text-slate-900">
       <section className="bg-[#0156A6] px-4 pb-10 pt-5 text-white sm:px-8 lg:px-12">
         <div className="mx-auto max-w-7xl">
-          <header className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
+          <header className="grid items-center gap-6 lg:grid-cols-[420px_1fr]">
+            <div className="rounded-md bg-white p-4 shadow-lg shadow-slate-950/15">
               <img
                 src="/budgo-logo.png"
                 alt="Budgo"
-                className="h-24 w-[330px] rounded-md bg-white object-contain p-2"
+                className="h-28 w-full object-contain"
               />
             </div>
-            <div className="rounded-md border border-white/20 px-3 py-2 text-sm text-white/80">
-              Tu presupuesto marca el camino
+            <div className="max-w-3xl">
+              <div className="mb-3 inline-flex rounded-md border border-white/25 bg-white/10 px-4 py-2 text-sm font-bold text-white/85">
+                Tu presupuesto marca el camino
+              </div>
+              <p className="text-2xl font-bold leading-tight text-white/95 sm:text-4xl">
+                Dinos cuanto quieres gastar y Budgo encuentra el viaje que encaja contigo.
+              </p>
+              <p className="mt-3 text-base leading-relaxed text-white/75 sm:text-lg">
+                Alojamientos en España y Portugal, ordenados de menor a mayor precio y con extras opcionales de vuelos y coche.
+              </p>
             </div>
           </header>
-
-          <div className="mt-14 max-w-4xl">
-            <p className="text-2xl font-bold leading-tight text-white/90 sm:text-4xl">
-              Dinos cuanto quieres gastar y Budgo encuentra el viaje que encaja contigo.
-            </p>
-          </div>
-
         </div>
       </section>
 

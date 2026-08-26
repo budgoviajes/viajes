@@ -53,37 +53,51 @@
       }
 
       .topbar {
-        display: flex;
+        display: grid;
+        grid-template-columns: 420px 1fr;
         align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        flex-wrap: wrap;
+        gap: 28px;
+      }
+
+      .brand-card {
+        background: white;
+        border-radius: 7px;
+        padding: 16px;
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.16);
       }
 
       .logo {
-        width: min(330px, 76vw);
-        height: 96px;
+        width: 100%;
+        height: 112px;
         object-fit: contain;
-        background: white;
-        border-radius: 6px;
-        padding: 8px;
       }
 
       .tag {
+        display: inline-flex;
         border: 1px solid rgba(255, 255, 255, 0.25);
+        background: rgba(255, 255, 255, 0.1);
         border-radius: 6px;
         padding: 10px 14px;
         color: rgba(255, 255, 255, 0.84);
         font-size: 14px;
+        font-weight: 800;
       }
 
       .claim {
-        margin-top: 54px;
+        margin: 12px 0 0;
         max-width: 880px;
         font-size: clamp(28px, 5vw, 46px);
         line-height: 1.12;
         font-weight: 800;
         color: rgba(255, 255, 255, 0.92);
+      }
+
+      .subclaim {
+        margin: 12px 0 0;
+        max-width: 780px;
+        color: rgba(255, 255, 255, 0.76);
+        font-size: 18px;
+        line-height: 1.55;
       }
 
       .search-shell {
@@ -362,7 +376,8 @@
       @media (max-width: 980px) {
         .search,
         .layout,
-        .card {
+        .card,
+        .topbar {
           grid-template-columns: 1fr;
         }
 
@@ -396,12 +411,19 @@
       <section class="hero">
         <div class="wrap">
           <header class="topbar">
-            <img class="logo" src="/budgo-logo.png" alt="Budgo" />
-            <div class="tag">Tu presupuesto marca el camino</div>
+            <div class="brand-card">
+              <img class="logo" src="/budgo-logo.png" alt="Budgo" />
+            </div>
+            <div>
+              <div class="tag">Tu presupuesto marca el camino</div>
+              <p class="claim">
+                Dinos cuanto quieres gastar y Budgo encuentra el viaje que encaja contigo.
+              </p>
+              <p class="subclaim">
+                Alojamientos en Espana y Portugal, ordenados de menor a mayor precio y con extras opcionales de vuelos y coche.
+              </p>
+            </div>
           </header>
-          <p class="claim">
-            Dinos cuanto quieres gastar y Budgo encuentra el viaje que encaja contigo.
-          </p>
         </div>
       </section>
 
