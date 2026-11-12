@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Budgo",
+  title: "Budgo | Viajes según tu presupuesto",
   description:
-    "Tu presupuesto marca el camino. Budgo encuentra el alojamiento perfecto.",
+    "Planifica escapadas según tu presupuesto. Compara propuestas y confirma precio y disponibilidad con el proveedor de reserva.",
   icons: {
     icon: "/budgo-logo.png",
     shortcut: "/budgo-logo.png",

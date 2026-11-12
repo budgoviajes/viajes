@@ -181,7 +181,7 @@ export default function Home() {
                 Dinos cuanto quieres gastar y Budgo encuentra el viaje que encaja contigo.
               </p>
               <p className="mt-3 text-base leading-relaxed text-white/75 sm:text-lg">
-                Alojamientos en España y Portugal, ordenados de menor a mayor precio y con extras opcionales de vuelos y coche.
+                Planifica escapadas en España y Portugal según tu presupuesto. Compara opciones y confirma la disponibilidad final con el proveedor de reserva.
               </p>
             </div>
           </header>
@@ -343,9 +343,9 @@ export default function Home() {
           <section>
             <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
               <div>
-                <h2 className="text-2xl font-bold">Todos los destinos disponibles</h2>
+                <h2 className="text-2xl font-bold">Propuestas para tu viaje</h2>
                 <p className="text-sm text-slate-500">
-                  Precio base de alojamiento
+                  {response?.mode === "booking" ? "Precios recibidos de Booking" : "Estimaciones de alojamiento"}
                   {activeExtras.length > 0
                     ? ` + ${activeExtras.map((service) => service.label.toLowerCase()).join(", ")}`
                     : ""}{" "}
@@ -354,9 +354,15 @@ export default function Home() {
               </div>
               {topOption ? (
                 <div className="rounded-md bg-white px-4 py-3 text-sm shadow-sm">
-                  Mas economico: <strong>{topOption.name}</strong> · {formatCurrency(topOption.total)}
+                  {response?.mode === "booking" ? "Opción más económica" : "Estimación más baja"}: <strong>{topOption.name}</strong> · {formatCurrency(topOption.total)}
                 </div>
               ) : null}
+            </div>
+
+            <div className="mb-4 rounded-md border border-[#18C4C7]/40 bg-[#EAFBFB] px-4 py-3 text-sm leading-relaxed text-slate-700">
+              <strong>Información importante:</strong> {response?.mode === "booking"
+                ? "el importe y la disponibilidad pueden variar hasta que los confirmes en Booking.com."
+                : "estas propuestas son orientativas. Confirma siempre el precio final, impuestos, disponibilidad y condiciones en Booking.com."}
             </div>
 
             {error ? (
@@ -393,7 +399,7 @@ export default function Home() {
                           <div>
                           <div className="text-xs font-bold uppercase tracking-wide text-[#0156A6]">
                               #{index + 1} · Solo alojamiento · {option.type} ·{" "}
-                              {option.source === "booking" ? "Booking" : "Demo"}
+                              {option.source === "booking" ? "Precio de Booking" : "Estimación"}
                             </div>
                             <h3 className="mt-1 text-2xl font-bold">
                               {option.name}, {option.country}
@@ -449,14 +455,17 @@ export default function Home() {
                           <span className="text-sm text-slate-500">
                             {nights} noches desde {tripStart} para {travelers.length} personas
                           </span>
-                          <a
-                            href={option.bookingUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="rounded-md bg-[#0156A6] px-4 py-3 font-bold text-white hover:bg-[#01408D]"
-                          >
-                            Ver en Booking
-                          </a>
+                          <div className="flex flex-col items-end gap-1">
+                            <a
+                              href={option.bookingUrl}
+                              target="_blank"
+                              rel="noopener sponsored"
+                              className="rounded-md bg-[#0156A6] px-4 py-3 font-bold text-white hover:bg-[#01408D]"
+                            >
+                              Ver disponibilidad en Booking.com
+                            </a>
+                            <span className="text-xs text-slate-500">Consulta precio y disponibilidad</span>
+                          </div>
                         </div>
                       </div>
                     </article>
@@ -477,7 +486,13 @@ export default function Home() {
                 Tu presupuesto marca el camino.
               </p>
             </div>
-            <nav className="flex flex-wrap gap-2" aria-label="Informacion legal">
+            <nav className="flex flex-wrap gap-2" aria-label="Información y enlaces legales">
+              <a className="rounded-md border border-white/25 bg-white/10 px-4 py-2 text-sm font-bold text-white hover:bg-white/20" href="/sobre-budgo.html">
+                Sobre Budgo
+              </a>
+              <a className="rounded-md border border-white/25 bg-white/10 px-4 py-2 text-sm font-bold text-white hover:bg-white/20" href="mailto:budgoviajes@gmail.com">
+                Contacto
+              </a>
               <a className="rounded-md border border-white/25 bg-white/10 px-4 py-2 text-sm font-bold text-white hover:bg-white/20" href="/aviso-legal.html">
                 Aviso legal
               </a>
@@ -489,6 +504,9 @@ export default function Home() {
               </a>
             </nav>
           </div>
+          <p className="mt-6 max-w-4xl border-t border-white/20 pt-5 text-sm leading-relaxed text-white/75">
+            Transparencia: Budgo puede recibir una comisión si reservas a través de algunos enlaces, sin coste adicional para ti. Los precios, la disponibilidad y las condiciones definitivas se confirman siempre en la plataforma de reserva.
+          </p>
         </div>
       </footer>
     </main>

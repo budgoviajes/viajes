@@ -405,6 +405,27 @@
         display: inline-block;
       }
 
+      .affiliate-note {
+        margin: 22px 0 0;
+        padding-top: 18px;
+        border-top: 1px solid rgba(255,255,255,.2);
+        max-width: 900px;
+        color: rgba(255,255,255,.78);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .estimate-note {
+        margin: 0 0 16px;
+        padding: 13px 15px;
+        border: 1px solid rgba(24,196,199,.42);
+        border-radius: 7px;
+        background: #eafbfb;
+        color: #334155;
+        font-size: 14px;
+        line-height: 1.55;
+      }
+
       .empty {
         padding: 36px;
         text-align: center;
@@ -457,7 +478,7 @@
                 Dinos cuanto quieres gastar y Budgo encuentra el viaje que encaja contigo.
               </p>
               <p class="subclaim">
-                Alojamientos en Espana y Portugal, ordenados de menor a mayor precio y con extras opcionales de vuelos y coche.
+                Planifica escapadas en Espana y Portugal segun tu presupuesto. Compara opciones y confirma la disponibilidad final con el proveedor de reserva.
               </p>
             </div>
           </header>
@@ -528,13 +549,14 @@
         <section>
           <div class="results-head">
             <div>
-              <h2>Todos los destinos disponibles</h2>
+              <h2>Propuestas para tu viaje</h2>
               <p id="resultsCopy" class="muted">
-                Precio base de alojamiento ordenado de menor a mayor.
+                Estimaciones de alojamiento ordenadas de menor a mayor.
               </p>
             </div>
             <div id="cheapest" class="cheap"></div>
           </div>
+          <div class="estimate-note"><strong>Informacion importante:</strong> estas propuestas son orientativas. Confirma siempre el precio final, impuestos, disponibilidad y condiciones en Booking.com.</div>
           <div id="results" class="list"></div>
         </section>
       </section>
@@ -546,12 +568,15 @@
               <p class="footer-brand">budgo.es</p>
               <p style="margin:6px 0 0; color:rgba(255,255,255,.75);">Tu presupuesto marca el camino.</p>
             </div>
-            <nav class="legal-nav" aria-label="Informacion legal">
+            <nav class="legal-nav" aria-label="Informacion y enlaces legales">
+              <a href="/sobre-budgo.html">Sobre Budgo</a>
+              <a href="mailto:budgoviajes@gmail.com">Contacto</a>
               <a href="/aviso-legal.html">Aviso legal</a>
               <a href="/politica-privacidad.html">Politica de privacidad</a>
               <a href="/politica-cookies.html">Politica de cookies</a>
             </nav>
           </div>
+          <p class="affiliate-note">Transparencia: Budgo puede recibir una comision si reservas a traves de algunos enlaces, sin coste adicional para ti. Los precios, la disponibilidad y las condiciones definitivas se confirman siempre en la plataforma de reserva.</p>
         </div>
       </footer>
     </main>
@@ -788,12 +813,12 @@
         if (document.querySelector("#flights").checked) active.push("vuelos");
         if (document.querySelector("#carRental").checked) active.push("coche");
         document.querySelector("#resultsCopy").textContent =
-          "Precio base de alojamiento" +
+          "Estimaciones de alojamiento" +
           (active.length ? " + " + active.join(", ") : "") +
           " ordenado de menor a mayor.";
 
         document.querySelector("#cheapest").innerHTML = options[0]
-          ? `Mas economico: <strong>${options[0].destination.name}</strong> - ${money(options[0].total)}`
+          ? `Estimacion mas baja: <strong>${options[0].destination.name}</strong> - ${money(options[0].total)}`
           : "";
 
         if (!options.length) {
@@ -814,7 +839,7 @@
                 <div class="card-body">
                   <div class="card-top">
                     <div>
-                      <div class="rank">#${index + 1} - Solo alojamiento - ${option.destination.type} - Demo</div>
+                      <div class="rank">#${index + 1} - Solo alojamiento - ${option.destination.type} - Estimacion</div>
                       <h3>${option.destination.name}, ${option.destination.country}</h3>
                       <p class="muted">${option.destination.climate}</p>
                     </div>
@@ -835,7 +860,7 @@
                   </div>
                   <div class="card-foot">
                     <span class="muted">${nights()} noches desde ${document.querySelector("#tripStart").value} para ${travelers.length} personas</span>
-                    <a class="booking" href="${bookingUrl(option.destination)}" target="_blank" rel="noreferrer">Ver en Booking</a>
+                    <a class="booking" href="${bookingUrl(option.destination)}" target="_blank" rel="noopener sponsored">Ver disponibilidad en Booking.com</a>
                   </div>
                 </div>
               </article>

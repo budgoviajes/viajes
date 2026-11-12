@@ -518,7 +518,18 @@ export function buildBookingUrl(destination: Destination, request: TravelSearchR
     no_rooms: "1",
   });
 
-  return `https://www.booking.com/searchresults.es.html?${query.toString()}`;
+  const bookingUrl = `https://www.booking.com/searchresults.es.html?${query.toString()}`;
+
+  // CJ y otras redes entregan un enlace de tracking propio. Guarda aquí la
+  // plantilla exacta, con {url} como destino de Booking, por ejemplo:
+  // https://www.anrdoezrs.net/click-...?...&url={url}
+  // Así el clic pasa primero por la red y la reserva queda atribuida.
+  const affiliateTemplate = process.env.BOOKING_AFFILIATE_URL_TEMPLATE?.trim();
+  if (affiliateTemplate?.includes("{url}")) {
+    return affiliateTemplate.replaceAll("{url}", encodeURIComponent(bookingUrl));
+  }
+
+  return bookingUrl;
 }
 
 export function searchDemoDestinations(request: TravelSearchRequest): TripOption[] {
