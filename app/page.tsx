@@ -53,6 +53,28 @@ function toDateInput(date: Date) {
   return date.toISOString().slice(0, 10);
 }
 
+function toDisplayDate(isoDate: string) {
+  const [year, month, day] = isoDate.split("-");
+  return `${day}/${month}/${year}`;
+}
+
+function toIsoDate(displayDate: string) {
+  const match = displayDate.trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!match) return null;
+
+  const [, day, month, year] = match;
+  const candidate = new Date(`${year}-${month}-${day}T00:00:00`);
+  if (
+    candidate.getFullYear() !== Number(year) ||
+    candidate.getMonth() + 1 !== Number(month) ||
+    candidate.getDate() !== Number(day)
+  ) {
+    return null;
+  }
+
+  return `${year}-${month}-${day}`;
+}
+
 function FieldShell({
   label,
   children,
@@ -70,8 +92,8 @@ function FieldShell({
 
 export default function Home() {
   const [budget, setBudget] = useState(1800);
-  const [startDate, setStartDate] = useState(toDateInput(defaultStart));
-  const [endDate, setEndDate] = useState(toDateInput(defaultEnd));
+  const [startDateText, setStartDateText] = useState(toDisplayDate(toDateInput(defaultStart)));
+  const [endDateText, setEndDateText] = useState(toDisplayDate(toDateInput(defaultEnd)));
   const [tripStart, setTripStart] = useState("Madrid");
   const [destinationType, setDestinationType] = useState<DestinationType | "Todos">("Todos");
   const [includeServices, setIncludeServices] = useState({
@@ -86,11 +108,14 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const startDate = toIsoDate(startDateText);
+  const endDate = toIsoDate(endDateText);
+
   const requestPayload = useMemo(
     () => ({
       budget,
-      startDate,
-      endDate,
+      startDate: startDate ?? "",
+      endDate: endDate ?? "",
       tripStart,
       destinationType,
       includeServices,
@@ -105,7 +130,7 @@ export default function Home() {
   );
 
   const options = response?.options ?? fallbackOptions;
-  const nights = daysBetween(startDate, endDate);
+  const nights = startDate && endDate ? daysBetween(startDate, endDate) : 0;
   const adults = adultsCount(travelers);
   const children = childrenCount(travelers);
   const topOption = options[0];
@@ -137,6 +162,10 @@ export default function Home() {
 
   async function submitSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!startDate || !endDate) {
+      setError("Introduce las fechas en formato dd/mm/aaaa.");
+      return;
+    }
     setIsLoading(true);
     setError("");
 
@@ -219,15 +248,21 @@ export default function Home() {
           <FieldShell label="Fechas">
             <div className="mt-1 grid grid-cols-2 gap-2">
               <input
-                type="date"
-                value={startDate}
-                onChange={(event) => setStartDate(event.target.value)}
+                type="text"
+                inputMode="numeric"
+                placeholder="dd/mm/aaaa"
+                aria-label="Fecha de inicio, formato día mes año"
+                value={startDateText}
+                onChange={(event) => setStartDateText(event.target.value)}
                 className="min-w-0 bg-transparent text-sm font-bold outline-none"
               />
               <input
-                type="date"
-                value={endDate}
-                onChange={(event) => setEndDate(event.target.value)}
+                type="text"
+                inputMode="numeric"
+                placeholder="dd/mm/aaaa"
+                aria-label="Fecha de vuelta, formato día mes año"
+                value={endDateText}
+                onChange={(event) => setEndDateText(event.target.value)}
                 className="min-w-0 bg-transparent text-sm font-bold outline-none"
               />
             </div>

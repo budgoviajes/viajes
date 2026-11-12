@@ -504,8 +504,8 @@
           <label class="field">
             <span>Fechas</span>
             <div class="dates">
-              <input id="startDate" type="date" />
-              <input id="endDate" type="date" />
+              <input id="startDate" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" aria-label="Fecha de inicio, formato día mes año" />
+              <input id="endDate" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" aria-label="Fecha de vuelta, formato día mes año" />
             </div>
           </label>
           <label class="field">
@@ -698,13 +698,30 @@
         start.setDate(start.getDate() + 35);
         const end = new Date(start);
         end.setDate(start.getDate() + 4);
-        document.querySelector("#startDate").value = start.toISOString().slice(0, 10);
-        document.querySelector("#endDate").value = end.toISOString().slice(0, 10);
+        document.querySelector("#startDate").value = displayDate(start);
+        document.querySelector("#endDate").value = displayDate(end);
+      }
+
+      function displayDate(date) {
+        return String(date.getDate()).padStart(2, "0") + "/" +
+          String(date.getMonth() + 1).padStart(2, "0") + "/" + date.getFullYear();
+      }
+
+      function isoDate(value) {
+        const match = value.trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+        if (!match) return null;
+        const [, day, month, year] = match;
+        const date = new Date(year + "-" + month + "-" + day + "T00:00:00");
+        if (date.getFullYear() !== Number(year) || date.getMonth() + 1 !== Number(month) || date.getDate() !== Number(day)) return null;
+        return year + "-" + month + "-" + day;
       }
 
       function nights() {
-        const start = new Date(document.querySelector("#startDate").value + "T00:00:00");
-        const end = new Date(document.querySelector("#endDate").value + "T00:00:00");
+        const startValue = isoDate(document.querySelector("#startDate").value);
+        const endValue = isoDate(document.querySelector("#endDate").value);
+        if (!startValue || !endValue) return 0;
+        const start = new Date(startValue + "T00:00:00");
+        const end = new Date(endValue + "T00:00:00");
         return Math.max(0, Math.round((end - start) / 86400000));
       }
 
@@ -731,8 +748,8 @@
       function bookingUrl(destination) {
         const params = new URLSearchParams({
           ss: destination.name + " " + destination.country,
-          checkin: document.querySelector("#startDate").value,
-          checkout: document.querySelector("#endDate").value,
+          checkin: isoDate(document.querySelector("#startDate").value) || "",
+          checkout: isoDate(document.querySelector("#endDate").value) || "",
           group_adults: String(Math.max(1, adultCount())),
           group_children: String(childCount()),
           no_rooms: "1",
@@ -880,6 +897,10 @@
       });
       document.querySelector("#search").addEventListener("submit", (event) => {
         event.preventDefault();
+        if (!isoDate(document.querySelector("#startDate").value) || !isoDate(document.querySelector("#endDate").value)) {
+          alert("Introduce las fechas en formato dd/mm/aaaa.");
+          return;
+        }
         render();
       });
       ["budget", "startDate", "endDate", "tripStart", "destinationType", "flights", "carRental"].forEach((id) => {
