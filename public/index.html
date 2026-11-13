@@ -512,16 +512,6 @@
             <span>Ocupacion</span>
             <strong id="occupancy">2 adultos - 0 ninos</strong>
           </label>
-          <label class="field">
-            <span>Tipo</span>
-            <select id="destinationType">
-              <option>Todos</option>
-              <option>Costa</option>
-              <option>Montana</option>
-              <option>Ciudad</option>
-              <option>Nieve</option>
-            </select>
-          </label>
           <button type="submit">Buscar</button>
         </form>
       </section>
@@ -549,7 +539,7 @@
         <section>
           <div class="results-head">
             <div>
-              <h2>Propuestas para tu viaje</h2>
+              <h2>Alojamientos dentro de tu presupuesto</h2>
               <p id="resultsCopy" class="muted">
                 Estimaciones de alojamiento ordenadas de menor a mayor.
               </p>
@@ -763,7 +753,6 @@
 
       function buildOptions() {
         const budget = Number(document.querySelector("#budget").value || 0);
-        const type = document.querySelector("#destinationType").value;
         const includeFlights = document.querySelector("#flights").checked;
         const includeCar = document.querySelector("#carRental").checked;
         const countNights = nights();
@@ -772,7 +761,6 @@
         if (countNights <= 0) return [];
 
         return destinations
-          .filter((destination) => type === "Todos" || destination.type === type)
           .flatMap((destination) =>
             destination.hotels.map(([hotel, category, board, factor]) => {
               const nightly = Math.round(destination.baseNight * factor);
@@ -860,9 +848,9 @@
                 <div class="card-body">
                   <div class="card-top">
                     <div>
-                      <div class="rank">#${index + 1} - Solo alojamiento - ${option.destination.type} - Estimacion</div>
-                      <h3>${option.destination.name}, ${option.destination.country}</h3>
-                      <p class="muted">${option.destination.climate}</p>
+                      <div class="rank">#${index + 1} - Alojamiento - Estimacion</div>
+                      <h3>${option.hotel}</h3>
+                      <p class="muted">${option.destination.name}, ${option.destination.country} - ${option.destination.climate}</p>
                     </div>
                     <div>
                       <div class="price">${money(option.total)}</div>
@@ -870,8 +858,8 @@
                     </div>
                   </div>
                   <div class="hotel">
-                    <strong>${option.hotel}</strong>
-                    <p class="muted" style="margin:6px 0 0;">${option.category} - ${option.board} - ${money(option.nightly)}/noche</p>
+                    <strong>${option.category}</strong>
+                    <p class="muted" style="margin:6px 0 0;">${option.board} - ${money(option.nightly)}/noche</p>
                     <div class="bar"><div style="width:${percent}%"></div></div>
                   </div>
                   <div class="breakdown">
@@ -907,7 +895,7 @@
         }
         render();
       });
-      ["budget", "startDate", "endDate", "tripStart", "destinationType", "flights", "carRental"].forEach((id) => {
+      ["budget", "startDate", "endDate", "tripStart", "flights", "carRental"].forEach((id) => {
         document.querySelector("#" + id).addEventListener("change", render);
       });
 

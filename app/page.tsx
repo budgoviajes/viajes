@@ -7,7 +7,7 @@ import {
   daysBetween,
   searchDemoDestinations,
 } from "./lib/travel-demo";
-import type { DestinationType, Traveler, TripOption } from "./lib/travel-demo";
+import type { Traveler, TripOption } from "./lib/travel-demo";
 
 type SearchResponse = {
   mode: "demo" | "booking";
@@ -20,14 +20,6 @@ type SearchResponse = {
   };
   error?: string;
 };
-
-const destinationTypes: Array<DestinationType | "Todos"> = [
-  "Todos",
-  "Costa",
-  "Montaña",
-  "Ciudad",
-  "Nieve",
-];
 
 const tripStarts = ["Madrid", "Barcelona", "Valencia", "Sevilla", "Bilbao"];
 
@@ -90,12 +82,45 @@ function FieldShell({
   );
 }
 
+function DateField({
+  value,
+  onChange,
+  label,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  label: string;
+}) {
+  const isoValue = toIsoDate(value) ?? "";
+
+  return (
+    <div className="relative min-w-0">
+      <input
+        type="text"
+        inputMode="numeric"
+        placeholder="dd/mm/aaaa"
+        aria-label={label}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="w-full rounded-md border border-slate-300 bg-white py-1.5 pl-2 pr-8 text-sm font-bold outline-[#18C4C7]"
+      />
+      <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 flex w-8 items-center justify-center text-slate-600">📅</span>
+      <input
+        type="date"
+        value={isoValue}
+        onChange={(event) => onChange(toDisplayDate(event.target.value))}
+        aria-label={`Abrir calendario: ${label}`}
+        className="absolute inset-y-0 right-0 h-full w-8 cursor-pointer opacity-0"
+      />
+    </div>
+  );
+}
+
 export default function Home() {
   const [budget, setBudget] = useState(1800);
   const [startDateText, setStartDateText] = useState(toDisplayDate(toDateInput(defaultStart)));
   const [endDateText, setEndDateText] = useState(toDisplayDate(toDateInput(defaultEnd)));
   const [tripStart, setTripStart] = useState("Madrid");
-  const [destinationType, setDestinationType] = useState<DestinationType | "Todos">("Todos");
   const [includeServices, setIncludeServices] = useState({
     flights: false,
     carRental: false,
@@ -117,11 +142,10 @@ export default function Home() {
       startDate: startDate ?? "",
       endDate: endDate ?? "",
       tripStart,
-      destinationType,
       includeServices,
       travelers,
     }),
-    [budget, destinationType, endDate, includeServices, startDate, travelers, tripStart],
+    [budget, endDate, includeServices, startDate, travelers, tripStart],
   );
 
   const fallbackOptions = useMemo(
@@ -220,7 +244,7 @@ export default function Home() {
       <section className="-mt-7 px-4 sm:px-8 lg:px-12">
         <form
           onSubmit={submitSearch}
-          className="mx-auto grid max-w-7xl overflow-hidden rounded-md border-2 border-[#18C4C7] bg-white shadow-xl md:grid-cols-[1fr_1fr_1.1fr_1fr_1fr_148px]"
+          className="mx-auto grid max-w-7xl overflow-hidden rounded-md border-2 border-[#18C4C7] bg-white shadow-xl md:grid-cols-[1fr_1fr_1.1fr_1fr_148px]"
         >
           <FieldShell label="Desde dónde viajas">
             <select
@@ -247,23 +271,15 @@ export default function Home() {
 
           <FieldShell label="Fechas">
             <div className="mt-1 grid grid-cols-2 gap-2">
-              <input
-                type="text"
-                inputMode="numeric"
-                placeholder="dd/mm/aaaa"
-                aria-label="Fecha de inicio, formato día mes año"
+              <DateField
                 value={startDateText}
-                onChange={(event) => setStartDateText(event.target.value)}
-                className="min-w-0 bg-transparent text-sm font-bold outline-none"
+                onChange={setStartDateText}
+                label="Fecha de inicio, formato día mes año"
               />
-              <input
-                type="text"
-                inputMode="numeric"
-                placeholder="dd/mm/aaaa"
-                aria-label="Fecha de vuelta, formato día mes año"
+              <DateField
                 value={endDateText}
-                onChange={(event) => setEndDateText(event.target.value)}
-                className="min-w-0 bg-transparent text-sm font-bold outline-none"
+                onChange={setEndDateText}
+                label="Fecha de vuelta, formato día mes año"
               />
             </div>
           </FieldShell>
@@ -272,20 +288,6 @@ export default function Home() {
             <div className="mt-1 text-lg font-bold">
               {adults} adultos · {children} niños
             </div>
-          </FieldShell>
-
-          <FieldShell label="Tipo">
-            <select
-              value={destinationType}
-              onChange={(event) =>
-                setDestinationType(event.target.value as DestinationType | "Todos")
-              }
-              className="mt-1 w-full bg-transparent text-lg font-bold outline-none"
-            >
-              {destinationTypes.map((type) => (
-                <option key={type}>{type}</option>
-              ))}
-            </select>
           </FieldShell>
 
           <button
@@ -378,7 +380,7 @@ export default function Home() {
           <section>
             <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
               <div>
-                <h2 className="text-2xl font-bold">Propuestas para tu viaje</h2>
+                <h2 className="text-2xl font-bold">Alojamientos dentro de tu presupuesto</h2>
                 <p className="text-sm text-slate-500">
                   {response?.mode === "booking" ? "Precios recibidos de Booking" : "Estimaciones de alojamiento"}
                   {activeExtras.length > 0
@@ -433,13 +435,15 @@ export default function Home() {
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
                           <div className="text-xs font-bold uppercase tracking-wide text-[#0156A6]">
-                              #{index + 1} · Solo alojamiento · {option.type} ·{" "}
+                              #{index + 1} · Alojamiento ·{" "}
                               {option.source === "booking" ? "Precio de Booking" : "Estimación"}
                             </div>
                             <h3 className="mt-1 text-2xl font-bold">
-                              {option.name}, {option.country}
+                              {option.accommodationName}
                             </h3>
-                            <p className="text-sm text-slate-500">{option.climate}</p>
+                            <p className="text-sm text-slate-500">
+                              {option.name}, {option.country} · {option.climate}
+                            </p>
                           </div>
                           <div className="text-right">
                             <div className="text-3xl font-bold text-[#0156A6]">
@@ -454,9 +458,9 @@ export default function Home() {
                         <div className="mt-4 rounded-md bg-slate-50 p-4">
                           <div className="flex flex-wrap justify-between gap-2">
                             <div>
-                              <p className="font-bold">{option.accommodationName}</p>
+                              <p className="font-bold">{option.accommodationCategory}</p>
                               <p className="text-sm text-slate-500">
-                                {option.accommodationCategory} · {option.board} ·{" "}
+                                {option.board} ·{" "}
                                 {formatCurrency(option.nightlyPrice)}/noche
                               </p>
                             </div>
