@@ -150,6 +150,34 @@
         gap: 8px;
       }
 
+      .date-control {
+        position: relative;
+      }
+
+      .date-control::after {
+        content: "📅";
+        pointer-events: none;
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 15px;
+      }
+
+      .date-control input[type="text"] {
+        padding-right: 34px;
+      }
+
+      .date-control input[type="date"] {
+        position: absolute;
+        inset: 0 0 0 auto;
+        width: 36px;
+        height: 100%;
+        margin: 0;
+        cursor: pointer;
+        opacity: 0;
+      }
+
       .search button {
         border: 0;
         background: #0076e8;
@@ -504,8 +532,14 @@
           <label class="field">
             <span>Fechas</span>
             <div class="dates">
-              <input id="startDate" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" aria-label="Fecha de inicio, formato día mes año" />
-              <input id="endDate" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" aria-label="Fecha de vuelta, formato día mes año" />
+              <div class="date-control">
+                <input id="startDate" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" aria-label="Fecha de inicio, formato día mes año" />
+                <input id="startDatePicker" type="date" aria-label="Abrir calendario de fecha de inicio" />
+              </div>
+              <div class="date-control">
+                <input id="endDate" type="text" inputmode="numeric" placeholder="dd/mm/aaaa" aria-label="Fecha de vuelta, formato día mes año" />
+                <input id="endDatePicker" type="date" aria-label="Abrir calendario de fecha de vuelta" />
+              </div>
             </div>
           </label>
           <label class="field">
@@ -690,6 +724,14 @@
         end.setDate(start.getDate() + 4);
         document.querySelector("#startDate").value = displayDate(start);
         document.querySelector("#endDate").value = displayDate(end);
+        document.querySelector("#startDatePicker").value = localIsoDate(start);
+        document.querySelector("#endDatePicker").value = localIsoDate(end);
+      }
+
+      function localIsoDate(date) {
+        return date.getFullYear() + "-" +
+          String(date.getMonth() + 1).padStart(2, "0") + "-" +
+          String(date.getDate()).padStart(2, "0");
       }
 
       function displayDate(date) {
@@ -895,6 +937,21 @@
         }
         render();
       });
+
+      [["#startDate", "#startDatePicker"], ["#endDate", "#endDatePicker"]].forEach(([textId, pickerId]) => {
+        const textInput = document.querySelector(textId);
+        const pickerInput = document.querySelector(pickerId);
+        pickerInput.addEventListener("change", () => {
+          const pickedDate = new Date(pickerInput.value + "T00:00:00");
+          textInput.value = displayDate(pickedDate);
+          render();
+        });
+        textInput.addEventListener("change", () => {
+          const value = isoDate(textInput.value);
+          if (value) pickerInput.value = value;
+        });
+      });
+
       ["budget", "startDate", "endDate", "tripStart", "flights", "carRental"].forEach((id) => {
         document.querySelector("#" + id).addEventListener("change", render);
       });
