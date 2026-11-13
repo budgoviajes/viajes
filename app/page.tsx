@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import {
   adultsCount,
   childrenCount,
@@ -20,6 +20,21 @@ type SearchResponse = {
   };
   error?: string;
 };
+
+declare global {
+  interface Window {
+    Booking?: {
+      AffiliateWidget: new (settings: {
+        iframeSettings: { selector: string; responsive: boolean };
+        widgetSettings: { destinationurloverride: string };
+      }) => unknown;
+    };
+  }
+}
+
+const bookingWidgetId = "bookingAffiliateWidget_806778a0-a45e-4749-8284-7cfde492c8e0";
+const bookingWidgetScript = "https://www.booking.com/affiliate/prelanding_sdk";
+const bookingAffiliateDestination = "http://www.jdoqocy.com/click-101926096-17323139?sid=";
 
 const destinationTypes: Array<DestinationType | "Todos"> = [
   "Todos",
@@ -87,6 +102,54 @@ function FieldShell({
       <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</span>
       {children}
     </label>
+  );
+}
+
+function BookingAccommodationWidget() {
+  useEffect(() => {
+    const renderWidget = () => {
+      const container = document.getElementById(bookingWidgetId);
+      const AffiliateWidget = window.Booking?.AffiliateWidget;
+      if (!container || !AffiliateWidget || container.dataset.bookingWidgetLoaded) return;
+
+      container.dataset.bookingWidgetLoaded = "true";
+      new AffiliateWidget({
+        iframeSettings: { selector: bookingWidgetId, responsive: true },
+        widgetSettings: { destinationurloverride: bookingAffiliateDestination },
+      });
+    };
+
+    const existingScript = document.querySelector<HTMLScriptElement>(
+      `script[src="${bookingWidgetScript}"]`,
+    );
+    if (existingScript) {
+      if (window.Booking?.AffiliateWidget) renderWidget();
+      else existingScript.addEventListener("load", renderWidget, { once: true });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = bookingWidgetScript;
+    script.async = true;
+    script.addEventListener("load", renderWidget, { once: true });
+    document.head.appendChild(script);
+  }, []);
+
+  return (
+    <section
+      id="booking-accommodation-widget"
+      className="mx-auto max-w-7xl px-4 pb-2 sm:px-8 lg:px-12"
+      aria-labelledby="booking-widget-title"
+    >
+      <div className="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
+        <p className="text-xs font-bold uppercase tracking-wide text-[#0156A6]">Reserva con Booking.com</p>
+        <h2 id="booking-widget-title" className="mt-1 text-2xl font-bold">Confirma tu alojamiento</h2>
+        <p className="mt-1 text-sm leading-relaxed text-slate-600">
+          Consulta disponibilidad, condiciones y precio final directamente en Booking.com.
+        </p>
+        <div id={bookingWidgetId} className="mt-4 min-h-20" />
+      </div>
+    </section>
   );
 }
 
@@ -297,6 +360,8 @@ export default function Home() {
         </form>
       </section>
 
+      <BookingAccommodationWidget />
+
       <section className="px-4 py-7 sm:px-8 lg:px-12">
         <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[320px_1fr]">
           <aside className="h-fit rounded-md border border-slate-200 bg-white p-5 shadow-sm">
@@ -492,14 +557,12 @@ export default function Home() {
                           </span>
                           <div className="flex flex-col items-end gap-1">
                             <a
-                              href={option.bookingUrl}
-                              target="_blank"
-                              rel="noopener sponsored"
+                              href="#booking-accommodation-widget"
                               className="rounded-md bg-[#0156A6] px-4 py-3 font-bold text-white hover:bg-[#01408D]"
                             >
-                              Ver disponibilidad en Booking.com
+                              Consultar en Booking.com
                             </a>
-                            <span className="text-xs text-slate-500">Consulta precio y disponibilidad</span>
+                            <span className="text-xs text-slate-500">Reserva mediante nuestro enlace afiliado</span>
                           </div>
                         </div>
                       </div>
