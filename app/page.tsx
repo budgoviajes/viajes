@@ -75,8 +75,8 @@ function FieldShell({
   children: React.ReactNode;
 }) {
   return (
-    <label className="flex min-h-[72px] flex-col justify-center border-b border-[#18C4C7]/35 bg-white px-4 py-3 md:border-b-0 md:border-r">
-      <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</span>
+    <label className="flex min-h-[76px] flex-col justify-center rounded-xl bg-slate-50 px-4 py-3 transition focus-within:bg-white focus-within:ring-2 focus-within:ring-[#18C4C7]">
+      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">{label}</span>
       {children}
     </label>
   );
@@ -244,7 +244,7 @@ export default function Home() {
       <section className="-mt-7 px-4 sm:px-8 lg:px-12">
         <form
           onSubmit={submitSearch}
-          className="mx-auto grid max-w-7xl overflow-hidden rounded-md border-2 border-[#18C4C7] bg-white shadow-xl md:grid-cols-[1fr_1fr_1.1fr_1fr_148px]"
+          className="mx-auto grid max-w-7xl gap-2 rounded-2xl border border-[#18C4C7]/75 bg-white/95 p-2 shadow-xl md:grid-cols-[1.12fr_.95fr_1.42fr_1.08fr_158px]"
         >
           <FieldShell label="Desde dónde viajas">
             <select
@@ -269,7 +269,7 @@ export default function Home() {
             />
           </FieldShell>
 
-          <FieldShell label="Fechas">
+          <FieldShell label="Fechas del viaje">
             <div className="mt-1 grid grid-cols-2 gap-2">
               <DateField
                 value={startDateText}
@@ -284,7 +284,7 @@ export default function Home() {
             </div>
           </FieldShell>
 
-          <FieldShell label="Ocupacion">
+          <FieldShell label="Ocupación">
             <div className="mt-1 text-lg font-bold">
               {adults} adultos · {children} niños
             </div>
@@ -292,7 +292,7 @@ export default function Home() {
 
           <button
             type="submit"
-            className="min-h-[72px] bg-[#0076E8] px-6 text-xl font-bold text-white transition hover:bg-[#01408D]"
+            className="min-h-[76px] rounded-xl bg-[#0076E8] px-6 text-xl font-bold text-white shadow-lg shadow-blue-500/20 transition hover:bg-[#01408D]"
           >
             {isLoading ? "Buscando" : "Buscar"}
           </button>
