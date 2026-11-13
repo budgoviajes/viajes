@@ -426,24 +426,6 @@
         line-height: 1.55;
       }
 
-      .booking-widget-shell {
-        max-width: 1280px;
-        margin: 0 auto;
-        padding: 0 0 8px;
-      }
-
-      .booking-widget-card {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: white;
-        padding: 20px;
-        box-shadow: 0 1px 4px rgba(15,23,42,.06);
-      }
-
-      .booking-widget-card h2 { margin: 4px 0 0; }
-      .booking-widget-card p { margin: 6px 0 0; color: var(--muted); }
-      .booking-widget-label { color: var(--blue); font-size: 12px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
-
       .empty {
         padding: 36px;
         text-align: center;
@@ -506,7 +488,7 @@
       <section class="search-shell">
         <form id="search" class="search">
           <label class="field">
-            <span>Inicio del viaje</span>
+            <span>Desde dónde viajas</span>
             <select id="tripStart">
               <option>Madrid</option>
               <option>Barcelona</option>
@@ -542,15 +524,6 @@
           </label>
           <button type="submit">Buscar</button>
         </form>
-      </section>
-
-      <section class="booking-widget-shell" id="booking-accommodation-widget" aria-labelledby="booking-widget-title">
-        <div class="booking-widget-card">
-          <div class="booking-widget-label">Reserva con Booking.com</div>
-          <h2 id="booking-widget-title">Confirma tu alojamiento</h2>
-          <p>Consulta disponibilidad, condiciones y precio final directamente en Booking.com.</p>
-          <div id="bookingAffiliateWidget_806778a0-a45e-4749-8284-7cfde492c8e0" style="margin-top:16px; min-height:80px;">&nbsp;</div>
-        </div>
       </section>
 
       <section class="layout">
@@ -608,21 +581,6 @@
       </footer>
     </main>
 
-    <script src="https://www.booking.com/affiliate/prelanding_sdk"></script>
-    <script>
-      (function () {
-        new Booking.AffiliateWidget({
-          iframeSettings: {
-            selector: "bookingAffiliateWidget_806778a0-a45e-4749-8284-7cfde492c8e0",
-            responsive: true
-          },
-          widgetSettings: {
-            destinationurloverride: "http://www.jdoqocy.com/click-101926096-17323139?sid="
-          }
-        });
-      })();
-    </script>
-    <img src="https://www.awltovhc.com/image-101926096-17323139" width="1" height="1" border="0" alt="" />
     <script>
       const destinations = [
         {
@@ -796,7 +754,11 @@
           group_children: String(childCount()),
           no_rooms: "1",
         });
-        return "https://www.booking.com/searchresults.es.html?" + params.toString();
+        const bookingDestination = "https://www.booking.com/searchresults.es.html?" + params.toString();
+        const trackingUrl = new URL("https://www.jdoqocy.com/click-101926096-17323139");
+        trackingUrl.searchParams.set("sid", "budgo_results");
+        trackingUrl.searchParams.set("url", bookingDestination);
+        return trackingUrl.toString();
       }
 
       function buildOptions() {
@@ -919,7 +881,7 @@
                   </div>
                   <div class="card-foot">
                     <span class="muted">${nights()} noches desde ${document.querySelector("#tripStart").value} para ${travelers.length} personas</span>
-                    <a class="booking" href="#booking-accommodation-widget">Consultar en Booking.com</a>
+                    <a class="booking" href="${bookingUrl(option.destination)}" target="_blank" rel="noopener sponsored">Consultar en Booking.com</a>
                   </div>
                 </div>
               </article>

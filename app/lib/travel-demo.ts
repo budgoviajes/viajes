@@ -524,7 +524,8 @@ export function buildBookingUrl(destination: Destination, request: TravelSearchR
   // plantilla exacta, con {url} como destino de Booking, por ejemplo:
   // https://www.anrdoezrs.net/click-...?...&url={url}
   // Así el clic pasa primero por la red y la reserva queda atribuida.
-  const affiliateTemplate = process.env.BOOKING_AFFILIATE_URL_TEMPLATE?.trim();
+  const affiliateTemplate = process.env.BOOKING_AFFILIATE_URL_TEMPLATE?.trim()
+    ?? "https://www.jdoqocy.com/click-101926096-17323139?sid=budgo_results&url={url}";
   if (affiliateTemplate?.includes("{url}")) {
     return affiliateTemplate.replaceAll("{url}", encodeURIComponent(bookingUrl));
   }
