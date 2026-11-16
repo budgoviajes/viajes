@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import {
   adultsCount,
   childrenCount,
@@ -23,6 +23,8 @@ type SearchResponse = {
 };
 
 const tripStarts = ["Madrid", "Barcelona", "Valencia", "Sevilla", "Bilbao"];
+const searchStorageKey = "budgoLastSearch";
+const searchStorageLifetime = 2 * 60 * 60 * 1000;
 
 const serviceOptions = [
   { key: "flights", label: "Vuelos" },
@@ -38,9 +40,7 @@ const formatCurrency = (value: number) =>
 
 const today = new Date();
 const defaultStart = new Date(today);
-defaultStart.setDate(today.getDate() + 35);
-const defaultEnd = new Date(defaultStart);
-defaultEnd.setDate(defaultStart.getDate() + 4);
+const defaultEnd = new Date(today);
 
 function toDateInput(date: Date) {
   return date.toISOString().slice(0, 10);
@@ -118,19 +118,17 @@ function DateField({
 }
 
 export default function Home() {
-  const [budget, setBudget] = useState(1800);
+  const [budget, setBudget] = useState(0);
   const [startDateText, setStartDateText] = useState(toDisplayDate(toDateInput(defaultStart)));
   const [endDateText, setEndDateText] = useState(toDisplayDate(toDateInput(defaultEnd)));
-  const [tripStart, setTripStart] = useState("Madrid");
+  const [tripStart, setTripStart] = useState("");
   const [includeServices, setIncludeServices] = useState({
     flights: false,
     carRental: false,
   });
-  const [travelers, setTravelers] = useState<Traveler[]>([
-    { id: 1, age: 35 },
-    { id: 2, age: 34 },
-  ]);
+  const [travelers, setTravelers] = useState<Traveler[]>([]);
   const [response, setResponse] = useState<SearchResponse | null>(null);
+  const [hasSearched, setHasSearched] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -161,6 +159,30 @@ export default function Home() {
   const topOption = options[0];
   const activeExtras = serviceOptions.filter((service) => includeServices[service.key]);
 
+  useEffect(() => {
+    const saved = localStorage.getItem(searchStorageKey);
+    if (!saved) return;
+
+    try {
+      const parsed = JSON.parse(saved) as { savedAt?: number } & typeof requestPayload;
+      if (!parsed.savedAt || Date.now() - parsed.savedAt > searchStorageLifetime) {
+        localStorage.removeItem(searchStorageKey);
+        return;
+      }
+      if (!parsed.tripStart || !parsed.startDate || !parsed.endDate || !parsed.travelers?.length || parsed.budget <= 0) return;
+
+      setBudget(parsed.budget);
+      setStartDateText(toDisplayDate(parsed.startDate));
+      setEndDateText(toDisplayDate(parsed.endDate));
+      setTripStart(parsed.tripStart);
+      setIncludeServices(parsed.includeServices);
+      setTravelers(parsed.travelers);
+      setHasSearched(true);
+    } catch {
+      localStorage.removeItem(searchStorageKey);
+    }
+  }, []);
+
   function updateTravelerAge(id: number, age: number) {
     setTravelers((current) =>
       current.map((traveler) =>
@@ -173,7 +195,7 @@ export default function Home() {
     setTravelers((current) => [
       ...current,
       {
-        id: Math.max(...current.map((traveler) => traveler.id)) + 1,
+        id: current.length ? Math.max(...current.map((traveler) => traveler.id)) + 1 : 1,
         age: 30,
       },
     ]);
@@ -181,16 +203,18 @@ export default function Home() {
 
   function removeTraveler(id: number) {
     setTravelers((current) =>
-      current.length === 1 ? current : current.filter((traveler) => traveler.id !== id),
+      current.filter((traveler) => traveler.id !== id),
     );
   }
 
   async function submitSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!startDate || !endDate) {
-      setError("Introduce las fechas en formato dd/mm/aaaa.");
+    if (!tripStart || budget <= 0 || travelers.length === 0 || !startDate || !endDate) {
+      setError("Selecciona el origen, un presupuesto, las fechas y al menos un viajero.");
       return;
     }
+    localStorage.setItem(searchStorageKey, JSON.stringify({ ...requestPayload, savedAt: Date.now() }));
+    setHasSearched(true);
     setIsLoading(true);
     setError("");
 
@@ -253,6 +277,7 @@ export default function Home() {
               onChange={(event) => setTripStart(event.target.value)}
               className="mt-1 w-full bg-transparent text-lg font-bold outline-none"
             >
+              <option value="">Selecciona ciudad</option>
               {tripStarts.map((start) => (
                 <option key={start}>{start}</option>
               ))}
@@ -262,7 +287,7 @@ export default function Home() {
           <FieldShell label="Presupuesto">
             <input
               type="number"
-              min={100}
+              min={0}
               step={50}
               value={budget}
               onChange={(event) => setBudget(Number(event.target.value))}
@@ -409,7 +434,12 @@ export default function Home() {
               </div>
             ) : null}
 
-            {options.length === 0 ? (
+            {!hasSearched ? (
+              <div className="rounded-md border border-slate-200 bg-white p-8 text-center shadow-sm">
+                <h3 className="text-xl font-bold">Completa tu búsqueda</h3>
+                <p className="mt-2 text-slate-500">Indica origen, presupuesto, fechas y viajeros para ver alojamientos.</p>
+              </div>
+            ) : options.length === 0 ? (
               <div className="rounded-md border border-slate-200 bg-white p-8 text-center shadow-sm">
                 <h3 className="text-xl font-bold">No hay destinos dentro del presupuesto</h3>
                 <p className="mt-2 text-slate-500">
