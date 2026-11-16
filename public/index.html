@@ -256,6 +256,45 @@
         font-weight: 800;
       }
 
+      .occupancy-field { position: relative; }
+      .occupancy-trigger {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        margin-top: 5px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--text);
+        cursor: pointer;
+        text-align: left;
+      }
+      .occupancy-trigger strong { font-size: 16px; }
+      .occupancy-trigger small { color: var(--blue); font-weight: 800; }
+      .occupancy-menu {
+        position: absolute;
+        z-index: 20;
+        top: calc(100% + 10px);
+        right: 0;
+        width: 330px;
+        padding: 16px;
+        border: 1px solid #cbd5e1;
+        border-radius: 12px;
+        background: white;
+        box-shadow: 0 16px 32px rgba(15, 23, 42, .2);
+      }
+      .occupancy-menu[hidden] { display: none; }
+      .stepper-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 8px 0; }
+      .stepper-row span { color: var(--text); font-size: 15px; font-weight: 800; letter-spacing: normal; text-transform: none; }
+      .stepper { display: flex; align-items: center; gap: 10px; }
+      .stepper button { width: 34px; height: 34px; border: 1px solid var(--turquoise); border-radius: 50%; background: #f0fdfa; color: var(--blue); cursor: pointer; font-size: 20px; font-weight: 800; }
+      .stepper strong { min-width: 20px; text-align: center; }
+      .child-ages { margin-top: 10px; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+      .child-age { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 8px; }
+      .child-age select { width: 108px; border: 1px solid #cbd5e1; border-radius: 7px; padding: 8px; background: white; font-weight: 700; }
+      .traveler-summary { margin-top: 14px; color: var(--muted); font-size: 14px; line-height: 1.45; }
+
       .mini-button,
       .add-button {
         border: 1px solid var(--turquoise);
@@ -584,22 +623,26 @@
               </div>
             </div>
           </label>
-          <label class="field">
+          <div class="field occupancy-field">
             <span>Ocupación</span>
-            <strong id="occupancy">2 adultos - 0 ninos</strong>
-          </label>
+            <button id="occupancyToggle" class="occupancy-trigger" type="button" aria-expanded="false">
+              <strong id="occupancy">0 adultos - 0 ninos</strong><small>Editar</small>
+            </button>
+            <div id="occupancyMenu" class="occupancy-menu" hidden>
+              <div class="stepper-row"><span>Adultos</span><div class="stepper"><button id="adultsMinus" type="button" aria-label="Quitar adulto">−</button><strong id="adultCount">0</strong><button id="adultsPlus" type="button" aria-label="Añadir adulto">+</button></div></div>
+              <div class="stepper-row"><span>Niños</span><div class="stepper"><button id="childrenMinus" type="button" aria-label="Quitar niño">−</button><strong id="childCount">0</strong><button id="childrenPlus" type="button" aria-label="Añadir niño">+</button></div></div>
+              <div id="childAgeControls" class="child-ages"></div>
+            </div>
+          </div>
           <button type="submit">Buscar</button>
         </form>
       </section>
 
       <section class="layout">
         <aside class="panel">
-          <div style="display:flex; justify-content:space-between; gap:12px; align-items:center;">
-            <div>
-              <h2>Viajeros</h2>
-              <p class="muted">Indica edades para ajustar precios.</p>
-            </div>
-            <button id="addTraveler" class="add-button" type="button">Anadir</button>
+          <div>
+            <h2>Viajeros</h2>
+            <p class="muted">Abre «Editar» en Ocupación para elegir adultos, niños y sus edades.</p>
           </div>
           <div id="travelerRows"></div>
           <div class="notice">
@@ -957,28 +1000,48 @@
 
       function renderTravelers() {
         const rows = document.querySelector("#travelerRows");
-        rows.innerHTML = "";
-        travelers.forEach((traveler, index) => {
-          const row = document.createElement("div");
-          row.className = "age-row";
-          row.innerHTML = `
-            <strong>Persona ${index + 1}</strong>
-            <input type="number" min="0" max="99" value="${traveler.age}" aria-label="Edad persona ${index + 1}">
-            <button class="mini-button" type="button" aria-label="Quitar persona ${index + 1}">-</button>
-          `;
-          row.querySelector("input").addEventListener("input", (event) => {
-            traveler.age = Math.max(0, Math.min(99, Number(event.target.value || 0)));
-            render();
-          });
-          row.querySelector("button").addEventListener("click", () => {
-            travelers = travelers.filter((item) => item.id !== traveler.id);
-            render();
-          });
-          rows.appendChild(row);
-        });
+        const adults = adultCount();
+        const children = travelers.filter((traveler) => traveler.age < 18);
+        document.querySelector("#occupancy").textContent = adults + " adultos - " + children.length + " ninos";
+        document.querySelector("#adultCount").textContent = adults;
+        document.querySelector("#childCount").textContent = children.length;
+        rows.innerHTML = travelers.length
+          ? `<strong>${adults} adultos · ${children.length} niños</strong>${children.length ? `<br>Edades de niños: ${children.map((child) => child.age).join(", ")}` : ""}`
+          : "Aún no has añadido viajeros.";
 
-        document.querySelector("#occupancy").textContent =
-          adultCount() + " adultos - " + childCount() + " ninos";
+        const childAgeControls = document.querySelector("#childAgeControls");
+        childAgeControls.innerHTML = children.length
+          ? `<strong>Edades de los niños</strong>${children.map((child, index) => `<label class="child-age">Niño ${index + 1}<select data-child-id="${child.id}" aria-label="Edad niño ${index + 1}">${Array.from({ length: 18 }, (_, age) => `<option value="${age}" ${age === child.age ? "selected" : ""}>${age} años</option>`).join("")}</select></label>`).join("")}`
+          : "";
+        childAgeControls.querySelectorAll("select").forEach((select) => {
+          select.addEventListener("change", (event) => {
+            const id = Number(event.target.dataset.childId);
+            const age = Number(event.target.value);
+            travelers = travelers.map((traveler) => traveler.id === id ? { ...traveler, age } : traveler);
+            render();
+          });
+        });
+      }
+
+      function setTravelers(adults, childAges) {
+        const safeAdults = Math.max(0, Math.min(8, adults));
+        const safeChildAges = childAges.slice(0, 6);
+        travelers = [
+          ...Array.from({ length: safeAdults }, (_, index) => ({ id: index + 1, age: 30 })),
+          ...safeChildAges.map((age, index) => ({ id: safeAdults + index + 1, age })),
+        ];
+        render();
+      }
+
+      function changeAdults(change) {
+        setTravelers(adultCount() + change, travelers.filter((traveler) => traveler.age < 18).map((traveler) => traveler.age));
+      }
+
+      function changeChildren(change) {
+        const ages = travelers.filter((traveler) => traveler.age < 18).map((traveler) => traveler.age);
+        if (change > 0 && ages.length < 6) ages.push(8);
+        if (change < 0) ages.pop();
+        setTravelers(adultCount(), ages);
       }
 
       function renderResults() {
@@ -1056,10 +1119,15 @@
         renderResults();
       }
 
-      document.querySelector("#addTraveler").addEventListener("click", () => {
-        travelers.push({ id: travelers.length ? Math.max(...travelers.map((item) => item.id)) + 1 : 1, age: 30 });
-        render();
+      document.querySelector("#occupancyToggle").addEventListener("click", () => {
+        const menu = document.querySelector("#occupancyMenu");
+        menu.hidden = !menu.hidden;
+        document.querySelector("#occupancyToggle").setAttribute("aria-expanded", String(!menu.hidden));
       });
+      document.querySelector("#adultsMinus").addEventListener("click", () => changeAdults(-1));
+      document.querySelector("#adultsPlus").addEventListener("click", () => changeAdults(1));
+      document.querySelector("#childrenMinus").addEventListener("click", () => changeChildren(-1));
+      document.querySelector("#childrenPlus").addEventListener("click", () => changeChildren(1));
       document.querySelector("#search").addEventListener("submit", (event) => {
         event.preventDefault();
         if (!document.querySelector("#tripStart").value || Number(document.querySelector("#budget").value || 0) <= 0 || !travelers.length || !isoDate(document.querySelector("#startDate").value) || !isoDate(document.querySelector("#endDate").value)) {

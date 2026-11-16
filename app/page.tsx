@@ -129,6 +129,7 @@ export default function Home() {
   const [travelers, setTravelers] = useState<Traveler[]>([]);
   const [response, setResponse] = useState<SearchResponse | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [occupancyOpen, setOccupancyOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -183,28 +184,28 @@ export default function Home() {
     }
   }, []);
 
-  function updateTravelerAge(id: number, age: number) {
-    setTravelers((current) =>
-      current.map((traveler) =>
-        traveler.id === id ? { ...traveler, age: Math.max(0, Math.min(99, age)) } : traveler,
-      ),
-    );
-  }
-
-  function addTraveler() {
-    setTravelers((current) => [
-      ...current,
-      {
-        id: current.length ? Math.max(...current.map((traveler) => traveler.id)) + 1 : 1,
-        age: 30,
-      },
+  function setOccupancy(adultTotal: number, childAges: number[]) {
+    const adultsToUse = Math.max(0, Math.min(8, adultTotal));
+    const childrenToUse = childAges.slice(0, 6);
+    setTravelers([
+      ...Array.from({ length: adultsToUse }, (_, index) => ({ id: index + 1, age: 30 })),
+      ...childrenToUse.map((age, index) => ({ id: adultsToUse + index + 1, age })),
     ]);
   }
 
-  function removeTraveler(id: number) {
-    setTravelers((current) =>
-      current.filter((traveler) => traveler.id !== id),
-    );
+  function changeAdults(change: number) {
+    setOccupancy(adults + change, travelers.filter((traveler) => traveler.age < 18).map((traveler) => traveler.age));
+  }
+
+  function changeChildren(change: number) {
+    const ages = travelers.filter((traveler) => traveler.age < 18).map((traveler) => traveler.age);
+    if (change > 0 && ages.length < 6) ages.push(8);
+    if (change < 0) ages.pop();
+    setOccupancy(adults, ages);
+  }
+
+  function updateChildAge(id: number, age: number) {
+    setTravelers((current) => current.map((traveler) => traveler.id === id ? { ...traveler, age } : traveler));
   }
 
   async function submitSearch(event: FormEvent<HTMLFormElement>) {
@@ -311,8 +312,20 @@ export default function Home() {
           </FieldShell>
 
           <FieldShell label="Ocupación">
-            <div className="mt-1 text-lg font-bold">
-              {adults} adultos · {children} niños
+            <div className="relative mt-1">
+              <button type="button" onClick={() => setOccupancyOpen((current) => !current)} className="flex w-full items-center justify-between text-left text-lg font-bold">
+                <span>{adults} adultos · {children} niños</span>
+                <span className="text-sm text-[#0156A6]">Editar</span>
+              </button>
+              {occupancyOpen ? (
+                <div className="absolute right-0 top-9 z-30 w-[320px] rounded-xl border border-slate-300 bg-white p-4 shadow-2xl">
+                  <div className="flex items-center justify-between py-2"><strong>Adultos</strong><div className="flex items-center gap-3"><button type="button" onClick={() => changeAdults(-1)} className="h-9 w-9 rounded-full border border-[#18C4C7] text-xl font-bold text-[#0156A6]">−</button><strong>{adults}</strong><button type="button" onClick={() => changeAdults(1)} className="h-9 w-9 rounded-full border border-[#18C4C7] text-xl font-bold text-[#0156A6]">+</button></div></div>
+                  <div className="flex items-center justify-between py-2"><strong>Niños</strong><div className="flex items-center gap-3"><button type="button" onClick={() => changeChildren(-1)} className="h-9 w-9 rounded-full border border-[#18C4C7] text-xl font-bold text-[#0156A6]">−</button><strong>{children}</strong><button type="button" onClick={() => changeChildren(1)} className="h-9 w-9 rounded-full border border-[#18C4C7] text-xl font-bold text-[#0156A6]">+</button></div></div>
+                  {travelers.filter((traveler) => traveler.age < 18).map((traveler, index) => (
+                    <label key={traveler.id} className="mt-2 flex items-center justify-between border-t border-slate-100 pt-2 text-sm font-semibold">Niño {index + 1}<select value={traveler.age} onChange={(event) => updateChildAge(traveler.id, Number(event.target.value))} className="rounded-md border border-slate-300 p-2">{Array.from({ length: 18 }, (_, age) => <option key={age} value={age}>{age} años</option>)}</select></label>
+                  ))}
+                </div>
+              ) : null}
             </div>
           </FieldShell>
 
@@ -328,46 +341,11 @@ export default function Home() {
       <section className="px-4 py-7 sm:px-8 lg:px-12">
         <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[320px_1fr]">
           <aside className="h-fit rounded-md border border-slate-200 bg-white p-5 shadow-sm">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <h2 className="text-lg font-bold">Viajeros</h2>
-                <p className="text-sm text-slate-500">Indica edades para ajustar precios.</p>
-              </div>
-              <button
-                type="button"
-                onClick={addTraveler}
-                className="rounded-md border border-[#18C4C7] px-3 py-2 text-sm font-bold text-[#0156A6]"
-              >
-                Añadir
-              </button>
-            </div>
-
-            <div className="mt-4 space-y-3">
-              {travelers.map((traveler, index) => (
-                <div
-                  key={traveler.id}
-                  className="grid grid-cols-[1fr_86px_34px] items-center gap-2"
-                >
-                  <span className="text-sm font-semibold">Persona {index + 1}</span>
-                  <input
-                    aria-label={`Edad persona ${index + 1}`}
-                    type="number"
-                    min={0}
-                    max={99}
-                    value={traveler.age}
-                    onChange={(event) => updateTravelerAge(traveler.id, Number(event.target.value))}
-                    className="rounded-md border border-slate-300 px-3 py-2 text-right font-bold outline-[#18C4C7]"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeTraveler(traveler.id)}
-                    className="h-10 rounded-md border border-slate-300 text-slate-600"
-                    aria-label={`Quitar persona ${index + 1}`}
-                  >
-                    -
-                  </button>
-                </div>
-              ))}
+            <h2 className="text-lg font-bold">Viajeros</h2>
+            <p className="mt-1 text-sm text-slate-500">Usa «Editar» en Ocupación para elegir adultos, niños y sus edades.</p>
+            <div className="mt-4 rounded-md bg-slate-50 p-3 text-sm text-slate-700">
+              <strong>{adults} adultos · {children} niños</strong>
+              {children > 0 ? <div className="mt-1">Edades: {travelers.filter((traveler) => traveler.age < 18).map((traveler) => traveler.age).join(", ")}</div> : null}
             </div>
 
             <div className="mt-5 rounded-md bg-[#EAFBFB] p-4 text-sm text-slate-700">
