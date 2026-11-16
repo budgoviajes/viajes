@@ -8,6 +8,7 @@ import {
   searchDemoDestinations,
 } from "./lib/travel-demo";
 import type { Traveler, TripOption } from "./lib/travel-demo";
+import { trackBookingClick } from "./components/analytics-consent";
 
 type SearchResponse = {
   mode: "demo" | "booking";
@@ -499,6 +500,7 @@ export default function Home() {
                               href={option.bookingUrl}
                               target="_blank"
                               rel="noopener sponsored"
+                              onClick={() => trackBookingClick(option.bookingUrl)}
                               className="rounded-md bg-[#0156A6] px-4 py-3 font-bold text-white hover:bg-[#01408D]"
                             >
                               Consultar en Booking.com

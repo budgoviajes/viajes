@@ -506,6 +506,31 @@
           text-align: left;
         }
       }
+
+      .cookie-banner {
+        position: fixed;
+        z-index: 100;
+        right: 20px;
+        bottom: 20px;
+        max-width: 510px;
+        padding: 20px;
+        border: 1px solid #cbd5e1;
+        border-radius: 14px;
+        background: #fff;
+        box-shadow: 0 18px 48px rgba(15, 23, 42, 0.22);
+      }
+
+      .cookie-banner[hidden] { display: none; }
+      .cookie-banner h2 { margin: 0; font-size: 18px; }
+      .cookie-banner p { margin: 8px 0 14px; color: #475569; line-height: 1.45; }
+      .cookie-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+      .cookie-actions button { border: 0; border-radius: 8px; padding: 10px 14px; cursor: pointer; font-weight: 700; }
+      .cookie-accept { background: var(--blue); color: #fff; }
+      .cookie-reject { background: #e2e8f0; color: var(--text); }
+
+      @media (max-width: 640px) {
+        .cookie-banner { right: 12px; bottom: 12px; left: 12px; }
+      }
     </style>
   </head>
   <body>
@@ -621,7 +646,55 @@
       </footer>
     </main>
 
+    <aside id="cookieBanner" class="cookie-banner" role="dialog" aria-label="Preferencias de cookies" hidden>
+      <h2>Tu privacidad en Budgo</h2>
+      <p>Usamos analítica opcional para entender las visitas y mejorar Budgo. Puedes aceptar o continuar solo con las cookies necesarias.</p>
+      <div class="cookie-actions">
+        <button id="acceptAnalytics" class="cookie-accept" type="button">Aceptar analítica</button>
+        <button id="rejectAnalytics" class="cookie-reject" type="button">Solo necesarias</button>
+        <a href="/politica-cookies.html">Ver política de cookies</a>
+      </div>
+    </aside>
+
     <script>
+      const analyticsId = "G-39J99RZ6YZ";
+
+      function loadAnalytics() {
+        if (window.budgoAnalyticsLoaded) return;
+        window.budgoAnalyticsLoaded = true;
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function () { window.dataLayer.push(arguments); };
+        window.gtag("js", new Date());
+        window.gtag("config", analyticsId);
+        const script = document.createElement("script");
+        script.async = true;
+        script.src = "https://www.googletagmanager.com/gtag/js?id=" + analyticsId;
+        document.head.appendChild(script);
+      }
+
+      const storedConsent = localStorage.getItem("budgoAnalyticsConsent");
+      const cookieBanner = document.querySelector("#cookieBanner");
+      if (storedConsent === "accepted") {
+        loadAnalytics();
+      } else if (!storedConsent) {
+        cookieBanner.hidden = false;
+      }
+      document.querySelector("#acceptAnalytics").addEventListener("click", () => {
+        localStorage.setItem("budgoAnalyticsConsent", "accepted");
+        cookieBanner.hidden = true;
+        loadAnalytics();
+      });
+      document.querySelector("#rejectAnalytics").addEventListener("click", () => {
+        localStorage.setItem("budgoAnalyticsConsent", "rejected");
+        cookieBanner.hidden = true;
+      });
+      document.addEventListener("click", (event) => {
+        const bookingLink = event.target.closest("a.booking");
+        if (bookingLink && window.gtag) {
+          window.gtag("event", "booking_click", { link_url: bookingLink.href });
+        }
+      });
+
       const destinations = [
         {
           id: "porto",
