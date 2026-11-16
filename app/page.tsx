@@ -22,7 +22,15 @@ type SearchResponse = {
   error?: string;
 };
 
-const tripStarts = ["Madrid", "Barcelona", "Valencia", "Sevilla", "Bilbao"];
+const tripStarts = [
+  "A Coruña", "Albacete", "Alicante", "Almería", "Álava", "Asturias", "Ávila", "Badajoz",
+  "Barcelona", "Burgos", "Cáceres", "Cádiz", "Cantabria", "Castellón", "Ciudad Real",
+  "Córdoba", "Cuenca", "Girona", "Granada", "Guadalajara", "Guipúzcoa", "Huelva", "Huesca",
+  "Illes Balears", "Jaén", "La Rioja", "Las Palmas", "León", "Lleida", "Lugo", "Madrid",
+  "Málaga", "Murcia", "Navarra", "Ourense", "Palencia", "Pontevedra", "Salamanca",
+  "Santa Cruz de Tenerife", "Segovia", "Sevilla", "Soria", "Tarragona", "Teruel", "Toledo",
+  "Valencia", "Valladolid", "Vizcaya", "Zamora", "Zaragoza",
+];
 const searchStorageKey = "budgoLastSearch";
 const searchStorageLifetime = 2 * 60 * 60 * 1000;
 
@@ -278,7 +286,7 @@ export default function Home() {
               onChange={(event) => setTripStart(event.target.value)}
               className="mt-1 w-full bg-transparent text-lg font-bold outline-none"
             >
-              <option value="">Selecciona ciudad</option>
+              <option value="">Selecciona provincia</option>
               {tripStarts.map((start) => (
                 <option key={start}>{start}</option>
               ))}
