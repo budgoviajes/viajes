@@ -46,6 +46,15 @@ const formatCurrency = (value: number) =>
     maximumFractionDigits: 0,
   }).format(value);
 
+const bookingWidgetId = "bookingAffiliateWidget_806778a0-a45e-4749-8284-7cfde492c8e0";
+
+function cjTrackedLink(destinationUrl: string, sid: string) {
+  const link = new URL("https://www.jdoqocy.com/click-101926096-17323139");
+  link.searchParams.set("sid", sid);
+  link.searchParams.set("url", destinationUrl);
+  return link.toString();
+}
+
 const today = new Date();
 const defaultStart = new Date(today);
 const defaultEnd = new Date(today);
@@ -125,6 +134,41 @@ function DateField({
   );
 }
 
+function OfficialBookingWidget({ open }: { open: boolean }) {
+  useEffect(() => {
+    if (!open || document.querySelector('script[data-budgo-booking-widget="true"]')) return;
+
+    const script = document.createElement("script");
+    script.src = "https://www.booking.com/affiliate/prelanding_sdk";
+    script.async = true;
+    script.dataset.budgoBookingWidget = "true";
+    script.onload = () => {
+      const booking = (window as Window & {
+        Booking?: { AffiliateWidget: new (settings: Record<string, unknown>) => unknown };
+      }).Booking;
+      if (!booking?.AffiliateWidget) return;
+      new booking.AffiliateWidget({
+        iframeSettings: { selector: bookingWidgetId, responsive: true },
+        widgetSettings: {
+          destinationurloverride: "https://www.jdoqocy.com/click-101926096-17323139?sid=budgo_widget",
+        },
+      });
+    };
+    document.head.appendChild(script);
+  }, [open]);
+
+  if (!open) return null;
+
+  return (
+    <div className="mt-5 rounded-lg border border-slate-200 bg-white p-5">
+      <p className="font-bold">Buscador oficial de Booking.com</p>
+      <p className="mt-1 text-sm text-slate-500">La búsqueda, la disponibilidad y el precio final se gestionan directamente por Booking.com.</p>
+      <div id={bookingWidgetId} className="mt-4" />
+      <img src="https://www.awltovhc.com/image-101926096-17323139" width="1" height="1" alt="" />
+    </div>
+  );
+}
+
 export default function Home() {
   const [budget, setBudget] = useState(0);
   const [startDateText, setStartDateText] = useState(toDisplayDate(toDateInput(defaultStart)));
@@ -138,6 +182,7 @@ export default function Home() {
   const [response, setResponse] = useState<SearchResponse | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
   const [occupancyOpen, setOccupancyOpen] = useState(false);
+  const [bookingWidgetOpen, setBookingWidgetOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -392,9 +437,9 @@ export default function Home() {
           <section>
             <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
               <div>
-                <h2 className="text-2xl font-bold">Alojamientos dentro de tu presupuesto</h2>
+                <h2 className="text-2xl font-bold">Destinos recomendados dentro de tu presupuesto</h2>
                 <p className="text-sm text-slate-500">
-                  {response?.mode === "booking" ? "Precios recibidos de Booking" : "Estimaciones de alojamiento"}
+                  Presupuestos orientativos de Budgo
                   {activeExtras.length > 0
                     ? ` + ${activeExtras.map((service) => service.label.toLowerCase()).join(", ")}`
                     : ""}{" "}
@@ -403,15 +448,13 @@ export default function Home() {
               </div>
               {topOption ? (
                 <div className="rounded-md bg-white px-4 py-3 text-sm shadow-sm">
-                  {response?.mode === "booking" ? "Opción más económica" : "Estimación más baja"}: <strong>{topOption.name}</strong> · {formatCurrency(topOption.total)}
+                  Estimación más baja: <strong>{topOption.name}</strong> · {formatCurrency(topOption.total)}
                 </div>
               ) : null}
             </div>
 
             <div className="mb-4 rounded-md border border-[#18C4C7]/40 bg-[#EAFBFB] px-4 py-3 text-sm leading-relaxed text-slate-700">
-              <strong>Información importante:</strong> {response?.mode === "booking"
-                ? "el importe y la disponibilidad pueden variar hasta que los confirmes en Booking.com."
-                : "estas propuestas son orientativas. Confirma siempre el precio final, impuestos, disponibilidad y condiciones en Booking.com."}
+              <strong>Información importante:</strong> Budgo no muestra precios ni disponibilidad de Booking. Estas propuestas son orientativas; confirma siempre el precio final, impuestos, disponibilidad y condiciones en Booking.com.
             </div>
 
             {error ? (
@@ -423,7 +466,7 @@ export default function Home() {
             {!hasSearched ? (
               <div className="rounded-md border border-slate-200 bg-white p-8 text-center shadow-sm">
                 <h3 className="text-xl font-bold">Completa tu búsqueda</h3>
-                <p className="mt-2 text-slate-500">Indica origen, presupuesto, fechas y viajeros para ver alojamientos.</p>
+                <p className="mt-2 text-slate-500">Indica origen, presupuesto, fechas y viajeros para ver destinos orientativos.</p>
               </div>
             ) : options.length === 0 ? (
               <div className="rounded-md border border-slate-200 bg-white p-8 text-center shadow-sm">
@@ -452,14 +495,13 @@ export default function Home() {
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
                           <div className="text-xs font-bold uppercase tracking-wide text-[#0156A6]">
-                              #{index + 1} · Alojamiento ·{" "}
-                              {option.source === "booking" ? "Precio de Booking" : "Estimación"}
+                              #{index + 1} · Destino recomendado · Presupuesto Budgo
                             </div>
                             <h3 className="mt-1 text-2xl font-bold">
-                              {option.accommodationName}
+                              {option.name}, {option.country}
                             </h3>
                             <p className="text-sm text-slate-500">
-                              {option.name}, {option.country} · {option.climate}
+                              {option.climate}
                             </p>
                           </div>
                           <div className="text-right">
@@ -475,10 +517,9 @@ export default function Home() {
                         <div className="mt-4 rounded-md bg-slate-50 p-4">
                           <div className="flex flex-wrap justify-between gap-2">
                             <div>
-                              <p className="font-bold">{option.accommodationCategory}</p>
+                              <p className="font-bold">Presupuesto orientativo de alojamiento</p>
                               <p className="text-sm text-slate-500">
-                                {option.board} ·{" "}
-                                {formatCurrency(option.nightlyPrice)}/noche
+                                No representa un hotel concreto ni una tarifa de Booking. Comprueba el precio final en Booking.com.
                               </p>
                             </div>
                             <div className="text-sm font-bold text-emerald-700">
@@ -519,7 +560,7 @@ export default function Home() {
                               onClick={() => trackBookingClick(option.bookingUrl)}
                               className="rounded-md bg-[#0156A6] px-4 py-3 font-bold text-white hover:bg-[#01408D]"
                             >
-                              Consultar en Booking.com
+                              Ver alojamientos en Booking.com
                             </a>
                             <span className="text-xs text-slate-500">Enlace afiliado · precio y disponibilidad finales en Booking</span>
                           </div>
@@ -530,6 +571,42 @@ export default function Home() {
                 })}
               </div>
             )}
+
+            <section className="mt-6 rounded-lg border border-blue-200 bg-gradient-to-br from-blue-50 to-white p-5">
+              <h3 className="text-lg font-bold">Comprueba la disponibilidad real en Booking.com</h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate-600">Usa las herramientas oficiales de Booking para comprobar alojamientos, fechas, viajeros, condiciones y precio final.</p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <a
+                  href={cjTrackedLink("https://www.booking.com/index.es.html", "budgo_enlace_ofertas")}
+                  target="_blank"
+                  rel="noopener sponsored"
+                  onClick={(event) => trackBookingClick(event.currentTarget.href)}
+                  className="rounded-md border border-[#0156A6] bg-white px-4 py-3 font-bold text-[#0156A6] hover:bg-blue-50"
+                >
+                  Ver ofertas de alojamiento
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setBookingWidgetOpen((current) => !current)}
+                  aria-expanded={bookingWidgetOpen}
+                  className="rounded-md bg-[#0156A6] px-4 py-3 font-bold text-white hover:bg-[#01408D]"
+                >
+                  {bookingWidgetOpen ? "Cerrar buscador oficial" : "Abrir buscador oficial de Booking"}
+                </button>
+              </div>
+              <a
+                href={cjTrackedLink("https://www.booking.com/index.es.html", "budgo_banner_ofertas")}
+                target="_blank"
+                rel="noopener sponsored"
+                onClick={(event) => trackBookingClick(event.currentTarget.href)}
+                className="mt-4 block rounded-md bg-[#003B7A] p-4 text-white hover:bg-[#002c5c]"
+              >
+                <span className="block text-xs font-bold uppercase tracking-wide text-blue-200">Enlace promocional a Booking.com</span>
+                <span className="mt-1 block font-bold">Explora alojamientos y ofertas para tu próxima escapada</span>
+              </a>
+              <p className="mt-3 text-xs text-slate-500">Este espacio se puede sustituir por cualquier banner oficial que generes en el Centro de contenido de Booking/CJ.</p>
+              <OfficialBookingWidget open={bookingWidgetOpen} />
+            </section>
           </section>
         </div>
       </section>

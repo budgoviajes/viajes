@@ -451,6 +451,48 @@
         font-weight: 800;
       }
 
+      .booking-tools {
+        margin-top: 24px;
+        padding: 22px;
+        border: 1px solid #bfdbfe;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #eff6ff, #fff);
+      }
+
+      .booking-tools h3 { margin-bottom: 8px; }
+      .booking-tools p { line-height: 1.5; }
+      .booking-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+      .booking-text-link, .booking-widget-button {
+        display: inline-block;
+        border: 1px solid var(--blue);
+        border-radius: 7px;
+        padding: 11px 14px;
+        background: white;
+        color: var(--blue);
+        font-weight: 800;
+        cursor: pointer;
+      }
+      .booking-widget-button { background: var(--blue); color: white; }
+      .booking-widget-panel {
+        margin-top: 18px;
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: white;
+      }
+      .booking-widget-panel[hidden] { display: none; }
+      .booking-widget-panel img { display: block; width: 1px; height: 1px; border: 0; }
+      .campaign-banner {
+        margin-top: 18px;
+        display: block;
+        padding: 18px;
+        border-radius: 8px;
+        background: #003b7a;
+        color: white;
+      }
+      .campaign-banner small { display: block; margin-bottom: 5px; color: #bfdbfe; font-weight: 700; }
+      .campaign-banner strong { font-size: 19px; }
+
       .site-footer {
         background: var(--blue);
         color: white;
@@ -654,15 +696,34 @@
         <section>
           <div class="results-head">
             <div>
-              <h2>Alojamientos dentro de tu presupuesto</h2>
+              <h2>Destinos recomendados dentro de tu presupuesto</h2>
               <p id="resultsCopy" class="muted">
-                Estimaciones de alojamiento ordenadas de menor a mayor.
+                Presupuestos orientativos de Budgo ordenados de menor a mayor.
               </p>
             </div>
             <div id="cheapest" class="cheap"></div>
           </div>
-          <div class="estimate-note"><strong>Informacion importante:</strong> estas propuestas son orientativas. Confirma siempre el precio final, impuestos, disponibilidad y condiciones en Booking.com.</div>
+          <div class="estimate-note"><strong>Informacion importante:</strong> Budgo no muestra precios ni disponibilidad de Booking. Estas propuestas son orientativas; confirma siempre el precio final, impuestos, disponibilidad y condiciones en Booking.com.</div>
           <div id="results" class="list"></div>
+          <section class="booking-tools" aria-label="Herramientas oficiales de Booking.com">
+            <h3>Comprueba la disponibilidad real en Booking.com</h3>
+            <p class="muted">Usa las herramientas oficiales de Booking para comprobar alojamientos, fechas, viajeros, condiciones y precio final.</p>
+            <div class="booking-actions">
+              <a id="bookingTextOffer" class="booking-text-link booking" target="_blank" rel="noopener sponsored">Ver ofertas de alojamiento</a>
+              <button id="openBookingWidget" class="booking-widget-button" type="button" aria-expanded="false">Abrir buscador oficial de Booking</button>
+            </div>
+            <a id="bookingCampaign" class="campaign-banner booking" target="_blank" rel="noopener sponsored">
+              <small>Enlace promocional a Booking.com</small>
+              <strong>Explora alojamientos y ofertas para tu próxima escapada</strong>
+            </a>
+            <p class="muted" style="margin:12px 0 0; font-size:13px;">Este espacio se puede sustituir por cualquier banner oficial que generes en el Centro de contenido de Booking/CJ.</p>
+            <div id="bookingWidgetPanel" class="booking-widget-panel" hidden>
+              <strong>Buscador oficial de Booking.com</strong>
+              <p class="muted">La búsqueda y los resultados se gestionan directamente por Booking.com.</p>
+              <div id="bookingAffiliateWidget_806778a0-a45e-4749-8284-7cfde492c8e0"></div>
+              <img src="https://www.awltovhc.com/image-101926096-17323139" width="1" height="1" alt="" />
+            </div>
+          </section>
         </section>
       </section>
 
@@ -904,6 +965,13 @@
         return travelers.filter((traveler) => traveler.age < 18).length;
       }
 
+      function trackedBookingUrl(bookingDestination, sid) {
+        const trackingUrl = new URL("https://www.jdoqocy.com/click-101926096-17323139");
+        trackingUrl.searchParams.set("sid", sid);
+        trackingUrl.searchParams.set("url", bookingDestination);
+        return trackingUrl.toString();
+      }
+
       function bookingUrl(destination) {
         const params = new URLSearchParams({
           ss: destination.name + " " + destination.country,
@@ -914,10 +982,7 @@
           no_rooms: "1",
         });
         const bookingDestination = "https://www.booking.com/searchresults.es.html?" + params.toString();
-        const trackingUrl = new URL("https://www.jdoqocy.com/click-101926096-17323139");
-        trackingUrl.searchParams.set("sid", "budgo_results");
-        trackingUrl.searchParams.set("url", bookingDestination);
-        return trackingUrl.toString();
+        return trackedBookingUrl(bookingDestination, "budgo_destino_" + destination.id);
       }
 
       function saveSearch() {
@@ -968,28 +1033,24 @@
         if (countNights <= 0) return [];
 
         return destinations
-          .flatMap((destination) =>
-            destination.hotels.map(([hotel, category, board, factor]) => {
-              const nightly = Math.round(destination.baseNight * factor);
-              const accommodation = Math.round(nightly * countNights * Math.max(1, weight / 2));
-              const flights = includeFlights ? Math.round(destination.flight * weight) : 0;
-              const car = includeCar ? Math.round(destination.carDaily * countNights) : 0;
-              const total = accommodation + flights + car;
-              return {
-                destination,
-                hotel,
-                category,
-                board,
-                nightly,
-                accommodation,
-                flights,
-                car,
-                total,
-                perPerson: Math.round(total / Math.max(1, travelers.length)),
-                remaining: budget - total,
-              };
-            }),
-          )
+          .filter((destination) => destination.country === "Espana")
+          .map((destination) => {
+            const nightly = Math.round(destination.baseNight * 0.86);
+            const accommodation = Math.round(nightly * countNights * Math.max(1, weight / 2));
+            const flights = includeFlights ? Math.round(destination.flight * weight) : 0;
+            const car = includeCar ? Math.round(destination.carDaily * countNights) : 0;
+            const total = accommodation + flights + car;
+            return {
+              destination,
+              nightly,
+              accommodation,
+              flights,
+              car,
+              total,
+              perPerson: Math.round(total / Math.max(1, travelers.length)),
+              remaining: budget - total,
+            };
+          })
           .filter((option) => option.total <= budget)
           .sort((a, b) => a.total - b.total);
       }
@@ -1044,9 +1105,9 @@
         const budget = Number(document.querySelector("#budget").value || 0);
         const results = document.querySelector("#results");
         if (!hasSearched) {
-          document.querySelector("#resultsCopy").textContent = "Completa la búsqueda para ver alojamientos disponibles.";
+          document.querySelector("#resultsCopy").textContent = "Completa la búsqueda para ver destinos recomendados.";
           document.querySelector("#cheapest").innerHTML = "";
-          results.innerHTML = `<div class="empty"><h3>Completa tu búsqueda</h3><p class="muted">Indica origen, presupuesto, fechas y viajeros para ver alojamientos.</p></div>`;
+          results.innerHTML = `<div class="empty"><h3>Completa tu búsqueda</h3><p class="muted">Indica origen, presupuesto, fechas y viajeros para ver destinos orientativos.</p></div>`;
           return;
         }
         const options = buildOptions();
@@ -1054,7 +1115,7 @@
         if (document.querySelector("#flights").checked) active.push("vuelos");
         if (document.querySelector("#carRental").checked) active.push("coche");
         document.querySelector("#resultsCopy").textContent =
-          "Estimaciones de alojamiento" +
+          "Presupuestos orientativos de Budgo" +
           (active.length ? " + " + active.join(", ") : "") +
           " ordenado de menor a mayor.";
 
@@ -1080,9 +1141,9 @@
                 <div class="card-body">
                   <div class="card-top">
                     <div>
-                      <div class="rank">#${index + 1} - Alojamiento - Estimacion</div>
-                      <h3>${option.hotel}</h3>
-                      <p class="muted">${option.destination.name}, ${option.destination.country} - ${option.destination.climate}</p>
+                      <div class="rank">#${index + 1} - Destino recomendado - Presupuesto Budgo</div>
+                      <h3>${option.destination.name}, ${option.destination.country}</h3>
+                      <p class="muted">${option.destination.climate}</p>
                     </div>
                     <div>
                       <div class="price">${money(option.total)}</div>
@@ -1090,8 +1151,8 @@
                     </div>
                   </div>
                   <div class="hotel">
-                    <strong>${option.category}</strong>
-                    <p class="muted" style="margin:6px 0 0;">${option.board} - ${money(option.nightly)}/noche</p>
+                    <strong>Presupuesto orientativo de alojamiento</strong>
+                    <p class="muted" style="margin:6px 0 0;">No representa un hotel concreto ni una tarifa de Booking. Comprueba el precio final en Booking.com.</p>
                     <div class="bar"><div style="width:${percent}%"></div></div>
                   </div>
                   <div class="breakdown">
@@ -1101,7 +1162,7 @@
                   </div>
                   <div class="card-foot">
                     <span class="muted">${nights()} noches desde ${document.querySelector("#tripStart").value} para ${travelers.length} personas</span>
-                    <a class="booking" href="${bookingUrl(option.destination)}" target="_blank" rel="noopener sponsored">Consultar en Booking.com</a>
+                    <a class="booking" href="${bookingUrl(option.destination)}" target="_blank" rel="noopener sponsored">Ver alojamientos en Booking.com</a>
                   </div>
                 </div>
               </article>
@@ -1151,6 +1212,43 @@
 
       ["budget", "startDate", "endDate", "tripStart", "flights", "carRental"].forEach((id) => {
         document.querySelector("#" + id).addEventListener("change", render);
+      });
+
+      let bookingWidgetStarted = false;
+      function startOfficialBookingWidget() {
+        if (bookingWidgetStarted) return;
+        bookingWidgetStarted = true;
+        const script = document.createElement("script");
+        script.src = "https://www.booking.com/affiliate/prelanding_sdk";
+        script.async = true;
+        script.onload = () => {
+          if (!window.Booking || !window.Booking.AffiliateWidget) return;
+          new window.Booking.AffiliateWidget({
+            iframeSettings: {
+              selector: "bookingAffiliateWidget_806778a0-a45e-4749-8284-7cfde492c8e0",
+              responsive: true,
+            },
+            widgetSettings: {
+              destinationurloverride: "https://www.jdoqocy.com/click-101926096-17323139?sid=budgo_widget",
+            },
+          });
+        };
+        document.head.appendChild(script);
+      }
+
+      document.querySelector("#bookingTextOffer").href = trackedBookingUrl(
+        "https://www.booking.com/index.es.html",
+        "budgo_enlace_ofertas",
+      );
+      document.querySelector("#bookingCampaign").href = trackedBookingUrl(
+        "https://www.booking.com/index.es.html",
+        "budgo_banner_ofertas",
+      );
+      document.querySelector("#openBookingWidget").addEventListener("click", () => {
+        const panel = document.querySelector("#bookingWidgetPanel");
+        panel.hidden = !panel.hidden;
+        document.querySelector("#openBookingWidget").setAttribute("aria-expanded", String(!panel.hidden));
+        if (!panel.hidden) startOfficialBookingWidget();
       });
 
       initDates();

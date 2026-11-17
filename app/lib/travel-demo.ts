@@ -465,7 +465,7 @@ export const destinations: Destination[] = [
 ];
 
 export const availableDestinations = destinations.filter((destination) =>
-  ["España", "Portugal"].includes(destination.country),
+  destination.country === "España",
 );
 
 export const accommodationOnlyServices: ServiceSelection = {
@@ -506,7 +506,11 @@ function startMultiplier(tripStart?: string) {
   return 1;
 }
 
-export function buildBookingUrl(destination: Destination, request: TravelSearchRequest) {
+export function buildBookingUrl(
+  destination: Destination,
+  request: TravelSearchRequest,
+  campaign = "budgo_destinations",
+) {
   const adults = Math.max(1, adultsCount(request.travelers));
   const children = childrenCount(request.travelers);
   const query = new URLSearchParams({
@@ -525,9 +529,11 @@ export function buildBookingUrl(destination: Destination, request: TravelSearchR
   // https://www.anrdoezrs.net/click-...?...&url={url}
   // Así el clic pasa primero por la red y la reserva queda atribuida.
   const affiliateTemplate = process.env.BOOKING_AFFILIATE_URL_TEMPLATE?.trim()
-    ?? "https://www.jdoqocy.com/click-101926096-17323139?sid=budgo_results&url={url}";
+    ?? "https://www.jdoqocy.com/click-101926096-17323139?sid={sid}&url={url}";
   if (affiliateTemplate?.includes("{url}")) {
-    return affiliateTemplate.replaceAll("{url}", encodeURIComponent(bookingUrl));
+    return affiliateTemplate
+      .replaceAll("{url}", encodeURIComponent(bookingUrl))
+      .replaceAll("{sid}", encodeURIComponent(campaign));
   }
 
   return bookingUrl;
@@ -545,35 +551,33 @@ export function searchDemoDestinations(request: TravelSearchRequest): TripOption
 
   return availableDestinations
     .filter((destination) => !typeFilter || destination.type === typeFilter)
-    .flatMap((destination) => {
+    .map((destination) => {
       const flights = Math.round(destination.flightEstimate * travelerWeight * startMultiplier(request.tripStart));
       const carRental = Math.round(destination.carDaily * nights);
-      return destination.accommodations.map((accommodationOption) => {
-        const nightlyPrice = Math.round(destination.baseNight * accommodationOption.factor);
-        const accommodation = Math.round(nightlyPrice * nights * Math.max(1, travelerWeight / 2));
-        const includedFlights = services.flights ? flights : 0;
-        const includedCarRental = services.carRental ? carRental : 0;
-        const total = accommodation + includedFlights + includedCarRental;
+      const nightlyPrice = Math.round(destination.baseNight * 0.86);
+      const accommodation = Math.round(nightlyPrice * nights * Math.max(1, travelerWeight / 2));
+      const includedFlights = services.flights ? flights : 0;
+      const includedCarRental = services.carRental ? carRental : 0;
+      const total = accommodation + includedFlights + includedCarRental;
 
-        return {
-          ...destination,
-          accommodationName: accommodationOption.name,
-          accommodationCategory: accommodationOption.category,
-          board: accommodationOption.board,
-          nightlyPrice,
+      return {
+        ...destination,
+        accommodationName: "Alojamiento por confirmar",
+        accommodationCategory: "Presupuesto orientativo de Budgo",
+        board: "La disponibilidad y el precio se confirman en Booking.com",
+        nightlyPrice,
+        total,
+        perPerson: Math.round(total / Math.max(1, request.travelers.length)),
+        remaining: request.budget - total,
+        bookingUrl: buildBookingUrl(destination, request),
+        source: "demo" as const,
+        breakdown: {
+          flights: includedFlights,
+          accommodation,
+          carRental: includedCarRental,
           total,
-          perPerson: Math.round(total / Math.max(1, request.travelers.length)),
-          remaining: request.budget - total,
-          bookingUrl: buildBookingUrl(destination, request),
-          source: "demo" as const,
-          breakdown: {
-            flights: includedFlights,
-            accommodation,
-            carRental: includedCarRental,
-            total,
-          },
-        };
-      });
+        },
+      };
     })
     .filter((option) => option.total <= request.budget)
     .sort((a, b) => a.total - b.total);

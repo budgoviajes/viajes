@@ -1,4 +1,3 @@
-import { bookingConfigured, searchBookingEverywhere } from "../../lib/booking";
 import {
   accommodationOnlyServices,
   daysBetween,
@@ -78,28 +77,10 @@ export async function POST(request: Request) {
       );
     }
 
-    let mode: "demo" | "booking" = "demo";
-    let message =
-      "Modo demo activo. El importe principal calcula alojamiento; puedes activar vuelos y coche como extras.";
-    let options = searchDemoDestinations(payload);
-
-    if (bookingConfigured()) {
-      try {
-        const liveOptions = await searchBookingEverywhere(payload);
-        if (liveOptions.length > 0) {
-          mode = "booking";
-          options = liveOptions;
-          message = "Resultados ordenados con precios recibidos desde Booking Demand API.";
-        } else {
-          message = "Booking no devolvio alojamientos dentro del presupuesto; se muestran estimaciones demo.";
-        }
-      } catch (error) {
-        message =
-          error instanceof Error
-            ? `${error.message}. Se muestran estimaciones demo.`
-            : "Booking no pudo responder. Se muestran estimaciones demo.";
-      }
-    }
+    const mode: "demo" | "booking" = "demo";
+    const message =
+      "Budgo muestra presupuestos orientativos por destino. La disponibilidad y el precio final se confirman en Booking.com.";
+    const options = searchDemoDestinations(payload);
 
     return Response.json({
       mode,
