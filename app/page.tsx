@@ -268,7 +268,7 @@ export default function Home() {
                 Dinos cuanto quieres gastar y Budgo encuentra el viaje que encaja contigo.
               </p>
               <p className="mt-3 text-base leading-relaxed text-white/75 sm:text-lg">
-                Planifica escapadas en España y Portugal según tu presupuesto. Compara opciones y confirma la disponibilidad final con el proveedor de reserva.
+                Planifica escapadas en España según tu presupuesto. Compara opciones y confirma la disponibilidad final con el proveedor de reserva.
               </p>
             </div>
           </header>
