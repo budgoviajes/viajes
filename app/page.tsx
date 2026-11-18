@@ -58,6 +58,7 @@ function cjTrackedLink(destinationUrl: string, sid: string) {
 const today = new Date();
 const defaultStart = new Date(today);
 const defaultEnd = new Date(today);
+defaultEnd.setDate(defaultEnd.getDate() + 1);
 
 function toDateInput(date: Date) {
   return date.toISOString().slice(0, 10);
@@ -186,6 +187,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [travelIdea, setTravelIdea] = useState("");
+  const [activeMood, setActiveMood] = useState("Para ti");
 
   const startDate = toIsoDate(startDateText);
   const endDate = toIsoDate(endDateText);
@@ -211,7 +213,13 @@ export default function Home() {
   const nights = startDate && endDate ? daysBetween(startDate, endDate) : 0;
   const adults = adultsCount(travelers);
   const children = childrenCount(travelers);
-  const topOption = options[0];
+  const visibleOptions = options.filter((option) => {
+    if (["Para ti", "Pareja", "Familia"].includes(activeMood)) return true;
+    if (activeMood === "Playa") return option.type === "Costa";
+    if (activeMood === "Ciudad") return option.type === "Ciudad";
+    return option.id === "tenerife";
+  });
+  const topOption = visibleOptions[0];
   const activeExtras = serviceOptions.filter((service) => includeServices[service.key]);
 
   useEffect(() => {
@@ -326,7 +334,7 @@ export default function Home() {
               <img
                 src="/budgo-logo.png"
                 alt="Budgo"
-                className="h-16 w-36 object-contain brightness-0 invert"
+                className="h-14 w-32 rounded-xl bg-white p-1 object-contain shadow-lg shadow-blue-950/15"
               />
             </div>
             <nav className="hidden items-center gap-7 text-sm font-bold text-white/90 md:flex" aria-label="Navegación principal"><a href="#como-funciona">Cómo funciona</a><a href="#destinos">Inspiración</a><a href="#ofertas">Ofertas</a></nav>
@@ -415,11 +423,12 @@ export default function Home() {
             {isLoading ? "Buscando" : "Buscar"}
           </button>
         </form>
+        <p className="mx-auto mt-4 max-w-7xl text-center text-xs font-bold text-slate-600 sm:text-sm">✦ Presupuestos orientativos <span className="mx-2 text-slate-300">·</span> ↗ Reserva siempre en el proveedor <span className="mx-2 text-slate-300">·</span> ✓ Sin coste adicional para ti</p>
       </section>
 
       <section className="px-4 py-7 sm:px-8 lg:px-12">
-        <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[260px_1fr]">
-          <aside className="h-fit rounded-md border border-slate-200 bg-white p-5 shadow-sm">
+        <div className={`mx-auto grid max-w-7xl gap-6 ${travelers.length ? "lg:grid-cols-[260px_1fr]" : ""}`}>
+          {travelers.length ? <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <h2 className="text-lg font-bold">Viajeros</h2>
             <p className="mt-1 text-sm text-slate-500">Usa «Editar» en Ocupación para elegir adultos, niños y sus edades.</p>
             <div className="mt-4 rounded-md bg-slate-50 p-3 text-sm text-slate-700">
@@ -458,7 +467,7 @@ export default function Home() {
                 ))}
               </div>
             </div>
-          </aside>
+          </aside> : null}
 
           <section id="destinos">
             <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
@@ -479,7 +488,7 @@ export default function Home() {
               ) : null}
             </div>
 
-            <div className="mb-5 flex flex-wrap gap-2" aria-label="Ideas de viaje"><span className="rounded-full bg-[#0156A6] px-4 py-2 text-sm font-bold text-white">Para ti</span>{["Playa", "Ciudad", "Naturaleza", "Pareja", "Familia"].map((filter) => <span key={filter} className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700">{filter}</span>)}</div>
+            <div className="mb-5 flex flex-wrap gap-2" aria-label="Ideas de viaje">{["Para ti", "Playa", "Ciudad", "Naturaleza", "Pareja", "Familia"].map((filter) => <button type="button" key={filter} onClick={() => setActiveMood(filter)} className={`rounded-full border px-4 py-2 text-sm font-bold transition ${activeMood === filter ? "border-[#0156A6] bg-[#0156A6] text-white" : "border-slate-200 bg-white text-slate-700 hover:border-[#0156A6]"}`}>{filter}</button>)}</div>
 
             <div className="mb-4 rounded-md border border-[#18C4C7]/40 bg-[#EAFBFB] px-4 py-3 text-sm leading-relaxed text-slate-700">
               <strong>Información importante:</strong> Budgo no muestra precios ni disponibilidad de Booking. Estas propuestas son orientativas; confirma siempre el precio final, impuestos, disponibilidad y condiciones en Booking.com.
@@ -492,11 +501,14 @@ export default function Home() {
             ) : null}
 
             {!hasSearched ? (
-              <div className="rounded-md border border-slate-200 bg-white p-8 text-center shadow-sm">
-                <h3 className="text-xl font-bold">Completa tu búsqueda</h3>
-                <p className="mt-2 text-slate-500">Indica origen, presupuesto, fechas y viajeros para ver destinos orientativos.</p>
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h3 className="text-xl font-black">Empieza por una idea</h3>
+                <p className="mt-2 text-slate-500">Completa la búsqueda o inspírate con estas escapadas. Budgo te ayudará a ajustar el viaje a tu presupuesto.</p>
+                <div className="mt-5 grid gap-3 md:grid-cols-3">
+                  {[['Escapada de playa', 'Sol, costa y desconexión para unos días.', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80'], ['Fin de semana cultural', 'Ciudades con historia, gastronomía y paseos.', 'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=800&q=80'], ['Naturaleza en familia', 'Rutas y planes para viajar con calma.', 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80']].map(([title, copy, image]) => <div key={title} className="min-h-40 rounded-xl bg-cover bg-center p-4 text-white" style={{ backgroundImage: `linear-gradient(145deg, rgba(1,86,166,.88), rgba(24,196,199,.62)), url(${image})` }}><strong className="text-lg">{title}</strong><p className="mt-2 text-sm text-white/90">{copy}</p></div>)}
+                </div>
               </div>
-            ) : options.length === 0 ? (
+            ) : visibleOptions.length === 0 ? (
               <div className="rounded-md border border-slate-200 bg-white p-8 text-center shadow-sm">
                 <h3 className="text-xl font-bold">No hay destinos dentro del presupuesto</h3>
                 <p className="mt-2 text-slate-500">
@@ -505,7 +517,7 @@ export default function Home() {
               </div>
             ) : (
               <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                {options.map((option, index) => {
+                {visibleOptions.map((option, index) => {
                   const percent = Math.min(100, Math.round((option.total / budget) * 100));
                   const key = `${option.id}-${option.accommodationName}-${index}`;
 
