@@ -185,6 +185,7 @@ export default function Home() {
   const [bookingWidgetOpen, setBookingWidgetOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [travelIdea, setTravelIdea] = useState("");
 
   const startDate = toIsoDate(startDateText);
   const endDate = toIsoDate(endDateText);
@@ -261,6 +262,29 @@ export default function Home() {
     setTravelers((current) => current.map((traveler) => traveler.id === id ? { ...traveler, age } : traveler));
   }
 
+  function prepareIdea() {
+    const idea = travelIdea.trim().toLowerCase();
+    if (!idea) return;
+    const budgetMatch = idea.match(/(?:hasta|presupuesto(?: de)?|por)\s*(\d{2,5})\s*€?/) ?? idea.match(/(\d{2,5})\s*€/);
+    if (budgetMatch) setBudget(Number(budgetMatch[1]));
+
+    const adultsMatch = idea.match(/(\d+)\s*(?:adultos?|personas?|parejas?)/);
+    const childrenMatch = idea.match(/(\d+)\s*(?:niños?|ninos?|peques?)/);
+    const inferredAdults = adultsMatch ? Number(adultsMatch[1]) : /pareja|dos personas/.test(idea) ? 2 : adults;
+    const inferredChildren = childrenMatch ? Number(childrenMatch[1]) : children;
+    if (inferredAdults || inferredChildren) setOccupancy(inferredAdults, Array.from({ length: inferredChildren }, () => 8));
+
+    const daysMatch = idea.match(/(\d+)\s*d[ií]as?/);
+    if (daysMatch && Number(daysMatch[1]) > 0) {
+      const start = new Date();
+      const end = new Date(start);
+      end.setDate(start.getDate() + Number(daysMatch[1]));
+      setStartDateText(toDisplayDate(toDateInput(start)));
+      setEndDateText(toDisplayDate(toDateInput(end)));
+    }
+    document.querySelector("#budgo-search")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
   async function submitSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!tripStart || budget <= 0 || travelers.length === 0 || !startDate || !endDate) {
@@ -295,35 +319,37 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[#F4F8FA] text-slate-900">
-      <section className="bg-[#0156A6] px-4 pb-10 pt-5 text-white sm:px-8 lg:px-12">
+      <section className="relative overflow-hidden bg-[linear-gradient(100deg,rgba(2,50,137,.96),rgba(1,92,183,.88),rgba(1,106,186,.42)),url('https://images.unsplash.com/photo-1530789253388-582c481c54b0?auto=format&fit=crop&w=2000&q=85')] bg-cover bg-center px-4 pb-28 pt-3 text-white sm:px-8 lg:px-12">
         <div className="mx-auto max-w-7xl">
-          <header className="grid items-center gap-6 lg:grid-cols-[420px_1fr]">
-            <div className="rounded-md bg-white p-4 shadow-lg shadow-slate-950/15">
+          <header className="flex min-h-16 items-center justify-between gap-5">
+            <div>
               <img
                 src="/budgo-logo.png"
                 alt="Budgo"
-                className="h-28 w-full object-contain"
+                className="h-16 w-36 object-contain brightness-0 invert"
               />
             </div>
-            <div className="max-w-3xl">
-              <div className="mb-3 inline-flex rounded-md border border-white/25 bg-white/10 px-4 py-2 text-sm font-bold text-white/85">
-                Tu presupuesto marca el camino
-              </div>
-              <p className="text-2xl font-bold leading-tight text-white/95 sm:text-4xl">
-                Dinos cuanto quieres gastar y Budgo encuentra el viaje que encaja contigo.
-              </p>
-              <p className="mt-3 text-base leading-relaxed text-white/75 sm:text-lg">
-                Planifica escapadas en España según tu presupuesto. Compara opciones y confirma la disponibilidad final con el proveedor de reserva.
-              </p>
-            </div>
+            <nav className="hidden items-center gap-7 text-sm font-bold text-white/90 md:flex" aria-label="Navegación principal"><a href="#como-funciona">Cómo funciona</a><a href="#destinos">Inspiración</a><a href="#ofertas">Ofertas</a></nav>
           </header>
+          <div className="mx-auto mt-12 max-w-4xl text-center sm:mt-16">
+            <span className="inline-flex rounded-full border border-white/25 bg-white/10 px-4 py-2 text-xs font-bold text-white/85">Tu presupuesto marca el camino</span>
+            <h1 className="mt-5 text-4xl font-black leading-[.98] tracking-[-.05em] sm:text-6xl lg:text-7xl">Tu próxima escapada,<br />dentro de tu presupuesto.</h1>
+            <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-white/85 sm:text-lg">Dinos cuánto quieres gastar y Budgo encuentra destinos que encajan contigo.</p>
+            <div id="como-funciona" className="mt-8 flex flex-wrap items-center gap-3 rounded-2xl border border-white/70 bg-white/95 p-2 text-left shadow-2xl shadow-blue-950/25 sm:flex-nowrap sm:p-3">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-cyan-50 text-xl text-[#0076E8]">✦</span>
+              <input value={travelIdea} onChange={(event) => setTravelIdea(event.target.value)} placeholder="Ej.: 4 días de playa en junio, para dos personas, hasta 900 €" className="min-w-0 flex-1 bg-transparent px-1 py-2 font-bold text-slate-800 outline-none" aria-label="Describe tu viaje ideal" />
+              <button type="button" onClick={prepareIdea} className="w-full shrink-0 rounded-xl bg-gradient-to-br from-cyan-400 to-[#0076E8] px-5 py-3 font-black text-white shadow-lg sm:w-auto">Preparar búsqueda</button>
+            </div>
+            <p className="mt-3 text-xs text-white/75">Cuéntanos tu idea y prepararemos el formulario para ti.</p>
+          </div>
         </div>
       </section>
 
       <section className="-mt-7 px-4 sm:px-8 lg:px-12">
         <form
           onSubmit={submitSearch}
-          className="mx-auto grid max-w-7xl gap-2 rounded-2xl border border-[#18C4C7]/75 bg-white/95 p-2 shadow-xl md:grid-cols-[1.12fr_.95fr_1.42fr_1.08fr_158px]"
+          id="budgo-search"
+          className="mx-auto grid max-w-7xl gap-2 rounded-[20px] border border-[#18C4C7]/75 bg-white/95 p-2 shadow-2xl shadow-slate-900/15 md:grid-cols-[1.12fr_.95fr_1.42fr_1.08fr_158px]"
         >
           <FieldShell label="Desde dónde viajas">
             <select
@@ -392,7 +418,7 @@ export default function Home() {
       </section>
 
       <section className="px-4 py-7 sm:px-8 lg:px-12">
-        <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[320px_1fr]">
+        <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[260px_1fr]">
           <aside className="h-fit rounded-md border border-slate-200 bg-white p-5 shadow-sm">
             <h2 className="text-lg font-bold">Viajeros</h2>
             <p className="mt-1 text-sm text-slate-500">Usa «Editar» en Ocupación para elegir adultos, niños y sus edades.</p>
@@ -434,10 +460,10 @@ export default function Home() {
             </div>
           </aside>
 
-          <section>
+          <section id="destinos">
             <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
               <div>
-                <h2 className="text-2xl font-bold">Destinos recomendados dentro de tu presupuesto</h2>
+                <h2 className="text-3xl font-black tracking-[-.04em]">Escapadas que encajan contigo</h2>
                 <p className="text-sm text-slate-500">
                   Presupuestos orientativos de Budgo
                   {activeExtras.length > 0
@@ -452,6 +478,8 @@ export default function Home() {
                 </div>
               ) : null}
             </div>
+
+            <div className="mb-5 flex flex-wrap gap-2" aria-label="Ideas de viaje"><span className="rounded-full bg-[#0156A6] px-4 py-2 text-sm font-bold text-white">Para ti</span>{["Playa", "Ciudad", "Naturaleza", "Pareja", "Familia"].map((filter) => <span key={filter} className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700">{filter}</span>)}</div>
 
             <div className="mb-4 rounded-md border border-[#18C4C7]/40 bg-[#EAFBFB] px-4 py-3 text-sm leading-relaxed text-slate-700">
               <strong>Información importante:</strong> Budgo no muestra precios ni disponibilidad de Booking. Estas propuestas son orientativas; confirma siempre el precio final, impuestos, disponibilidad y condiciones en Booking.com.
@@ -476,7 +504,7 @@ export default function Home() {
                 </p>
               </div>
             ) : (
-              <div className="grid gap-4">
+              <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
                 {options.map((option, index) => {
                   const percent = Math.min(100, Math.round((option.total / budget) * 100));
                   const key = `${option.id}-${option.accommodationName}-${index}`;
@@ -484,12 +512,12 @@ export default function Home() {
                   return (
                     <article
                       key={key}
-                      className="grid overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm md:grid-cols-[250px_1fr]"
+                      className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg shadow-slate-900/5 transition duration-200 hover:-translate-y-1 hover:shadow-xl"
                     >
                       <img
                         src={option.image}
                         alt={`${option.name}, ${option.country}`}
-                        className="h-56 w-full object-cover md:h-full"
+                        className="h-48 w-full object-cover"
                       />
                       <div className="p-5">
                         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -497,7 +525,7 @@ export default function Home() {
                           <div className="text-xs font-bold uppercase tracking-wide text-[#0156A6]">
                               #{index + 1} · Destino recomendado · Presupuesto Budgo
                             </div>
-                            <h3 className="mt-1 text-2xl font-bold">
+                            <h3 className="mt-1 text-xl font-black">
                               {option.name}, {option.country}
                             </h3>
                             <p className="text-sm text-slate-500">
@@ -505,7 +533,7 @@ export default function Home() {
                             </p>
                           </div>
                           <div className="text-right">
-                            <div className="text-3xl font-bold text-[#0156A6]">
+                            <div className="text-2xl font-black text-[#0156A6]">
                               {formatCurrency(option.total)}
                             </div>
                             <div className="text-sm text-slate-500">
@@ -572,7 +600,7 @@ export default function Home() {
               </div>
             )}
 
-            <section className="mt-6 rounded-lg border border-blue-200 bg-gradient-to-br from-blue-50 to-white p-5">
+            <section id="ofertas" className="mt-6 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-white p-5 shadow-sm">
               <h3 className="text-lg font-bold">Comprueba la disponibilidad real en Booking.com</h3>
               <p className="mt-2 text-sm leading-relaxed text-slate-600">Usa las herramientas oficiales de Booking para comprobar alojamientos, fechas, viajeros, condiciones y precio final.</p>
               <div className="mt-4 flex flex-wrap gap-3">

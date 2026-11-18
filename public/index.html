@@ -612,6 +612,77 @@
       @media (max-width: 640px) {
         .cookie-banner { right: 12px; bottom: 12px; left: 12px; }
       }
+
+      /* Versión visual Budgo 2.0 */
+      body { background: #f3f8fc; }
+      .hero {
+        position: relative;
+        overflow: hidden;
+        min-height: 540px;
+        padding: 0 42px 118px;
+        background:
+          linear-gradient(100deg, rgba(2, 50, 137, .96) 0%, rgba(1, 92, 183, .88) 52%, rgba(1, 106, 186, .36) 100%),
+          url("https://images.unsplash.com/photo-1530789253388-582c481c54b0?auto=format&fit=crop&w=2000&q=85") center 58% / cover;
+      }
+      .topbar { display: flex; min-height: 76px; justify-content: space-between; gap: 26px; }
+      .brand-card { width: auto; padding: 0; background: transparent; box-shadow: none; }
+      .logo { width: 148px; height: 64px; object-fit: contain; filter: brightness(0) invert(1); }
+      .main-nav { display: flex; align-items: center; gap: 26px; }
+      .main-nav a { color: rgba(255,255,255,.92); font-size: 14px; font-weight: 800; }
+      .main-nav a:hover { color: #84ffff; }
+      .hero-copy { max-width: 910px; margin: 68px auto 0; text-align: center; }
+      .tag { border-radius: 999px; padding: 8px 13px; font-size: 12px; }
+      .claim { max-width: 860px; margin: 16px auto 0; font-size: clamp(38px, 5.4vw, 70px); letter-spacing: -.045em; }
+      .subclaim { max-width: 710px; margin: 17px auto 0; font-size: 18px; color: rgba(255,255,255,.88); }
+      .ai-prompt { display: flex; align-items: center; gap: 12px; max-width: 900px; margin: 32px auto 0; padding: 9px 10px 9px 18px; border: 1px solid rgba(255,255,255,.72); border-radius: 20px; background: rgba(255,255,255,.96); box-shadow: 0 20px 48px rgba(0, 20, 70, .28); }
+      .ai-spark { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 12px; background: #e9fbff; color: #0076e8; font-size: 21px; }
+      .ai-prompt input { min-width: 0; flex: 1; border: 0; outline: 0; background: transparent; color: #172554; font-size: 16px; font-weight: 700; }
+      .ai-prompt button { flex: 0 0 auto; border: 0; border-radius: 13px; padding: 14px 20px; background: linear-gradient(135deg, #19d4db, #0076e8); color: white; font-weight: 900; cursor: pointer; box-shadow: 0 8px 20px rgba(0,118,232,.24); }
+      .ai-hint { margin: 10px auto 0; color: rgba(255,255,255,.75); font-size: 12px; }
+      .search-shell { position: relative; z-index: 2; margin: -53px auto 0; }
+      .search { padding: 8px; border-radius: 20px; box-shadow: 0 22px 54px rgba(10, 42, 76, .2); }
+      .field { min-height: 78px; border: 1px solid transparent; border-radius: 14px; }
+      .field:hover { background: white; border-color: #d7e5ee; }
+      .search button { border-radius: 14px; }
+      .layout { grid-template-columns: 260px 1fr; margin-top: 38px; }
+      .panel { border-radius: 16px; box-shadow: 0 12px 30px rgba(15, 55, 90, .08); }
+      .results-head h2 { font-size: clamp(25px, 3vw, 36px); letter-spacing: -.03em; }
+      .estimate-note { border-radius: 14px; }
+      .mood-filters { display: flex; flex-wrap: wrap; gap: 9px; margin: 0 0 20px; }
+      .mood-chip { border: 1px solid #cbddeb; border-radius: 999px; padding: 9px 14px; background: white; color: #203c62; font-size: 14px; font-weight: 800; }
+      .mood-chip:first-child { border-color: #0156a6; background: #0156a6; color: white; }
+      .list { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+      .card { display: block; border-radius: 16px; box-shadow: 0 12px 26px rgba(15, 55, 90, .1); transition: transform .2s ease, box-shadow .2s ease; }
+      .card:hover { transform: translateY(-4px); box-shadow: 0 18px 34px rgba(15, 55, 90, .15); }
+      .card img { height: 172px; min-height: 172px; }
+      .card-body { padding: 16px; }
+      .card h3 { margin: 5px 0 3px; font-size: 23px; }
+      .price { font-size: 25px; }
+      .hotel { margin-top: 12px; padding: 12px; }
+      .hotel p { min-height: 39px; font-size: 12px; }
+      .breakdown { gap: 5px; margin-top: 11px; }
+      .breakdown div { padding: 8px 7px; font-size: 14px; }
+      .card-foot { margin-top: 14px; }
+      .card-foot .booking { width: 100%; text-align: center; }
+      .booking-tools { border-radius: 16px; box-shadow: 0 12px 30px rgba(15, 55, 90, .06); }
+      @media (max-width: 1080px) { .list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+      @media (max-width: 980px) {
+        .hero { min-height: auto; padding: 0 22px 90px; }
+        .main-nav { display: none; }
+        .hero-copy { margin-top: 42px; }
+        .layout { grid-template-columns: 1fr; }
+        .list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+      @media (max-width: 640px) {
+        .hero { padding: 0 16px 82px; }
+        .hero-copy { margin-top: 30px; text-align: left; }
+        .claim { margin-left: 0; font-size: 38px; }
+        .subclaim { font-size: 16px; }
+        .ai-prompt { align-items: stretch; flex-wrap: wrap; padding: 10px; }
+        .ai-prompt input { width: calc(100% - 54px); font-size: 14px; }
+        .ai-prompt button { width: 100%; }
+        .list { grid-template-columns: 1fr; }
+      }
     </style>
   </head>
   <body>
@@ -622,16 +693,27 @@
             <div class="brand-card">
               <img class="logo" src="/budgo-logo.png" alt="Budgo" />
             </div>
-            <div>
+            <nav class="main-nav" aria-label="Navegación principal">
+              <a href="#como-funciona">Cómo funciona</a>
+              <a href="#destinos">Inspiración</a>
+              <a href="#ofertas">Ofertas</a>
+            </nav>
+          </header>
+          <div class="hero-copy">
               <div class="tag">Tu presupuesto marca el camino</div>
               <p class="claim">
-                Dinos cuanto quieres gastar y Budgo encuentra el viaje que encaja contigo.
+                Tu próxima escapada, dentro de tu presupuesto.
               </p>
               <p class="subclaim">
-                Planifica escapadas en Espana segun tu presupuesto. Compara opciones y confirma la disponibilidad final con el proveedor de reserva.
+                Dinos cuánto quieres gastar y Budgo encuentra destinos que encajan contigo.
               </p>
-            </div>
-          </header>
+              <div class="ai-prompt" id="como-funciona">
+                <span class="ai-spark" aria-hidden="true">✦</span>
+                <input id="travelIdea" type="text" placeholder="Ej.: 4 días de playa en junio, para dos personas, hasta 900 €" aria-label="Describe tu viaje ideal" />
+                <button id="prepareIdea" type="button">Preparar búsqueda</button>
+              </div>
+              <p class="ai-hint">Cuéntanos tu idea y prepararemos el formulario para ti.</p>
+          </div>
         </div>
       </section>
 
@@ -676,7 +758,7 @@
         </form>
       </section>
 
-      <section class="layout">
+      <section class="layout" id="destinos">
         <aside class="panel">
           <div>
             <h2>Viajeros</h2>
@@ -696,16 +778,19 @@
         <section>
           <div class="results-head">
             <div>
-              <h2>Destinos recomendados dentro de tu presupuesto</h2>
+              <h2>Escapadas que encajan contigo</h2>
               <p id="resultsCopy" class="muted">
                 Presupuestos orientativos de Budgo ordenados de menor a mayor.
               </p>
             </div>
             <div id="cheapest" class="cheap"></div>
           </div>
+          <div class="mood-filters" aria-label="Ideas de viaje">
+            <span class="mood-chip">Para ti</span><span class="mood-chip">Playa</span><span class="mood-chip">Ciudad</span><span class="mood-chip">Naturaleza</span><span class="mood-chip">Pareja</span><span class="mood-chip">Familia</span>
+          </div>
           <div class="estimate-note"><strong>Informacion importante:</strong> Budgo no muestra precios ni disponibilidad de Booking. Estas propuestas son orientativas; confirma siempre el precio final, impuestos, disponibilidad y condiciones en Booking.com.</div>
           <div id="results" class="list"></div>
-          <section class="booking-tools" aria-label="Herramientas oficiales de Booking.com">
+          <section class="booking-tools" id="ofertas" aria-label="Herramientas oficiales de Booking.com">
             <h3>Comprueba la disponibilidad real en Booking.com</h3>
             <p class="muted">Usa las herramientas oficiales de Booking para comprobar alojamientos, fechas, viajeros, condiciones y precio final.</p>
             <div class="booking-actions">
@@ -1185,6 +1270,36 @@
       document.querySelector("#adultsPlus").addEventListener("click", () => changeAdults(1));
       document.querySelector("#childrenMinus").addEventListener("click", () => changeChildren(-1));
       document.querySelector("#childrenPlus").addEventListener("click", () => changeChildren(1));
+      document.querySelector("#prepareIdea").addEventListener("click", () => {
+        const idea = document.querySelector("#travelIdea").value.trim().toLowerCase();
+        if (!idea) {
+          document.querySelector("#tripStart").focus();
+          return;
+        }
+
+        const budgetMatch = idea.match(/(?:hasta|presupuesto(?: de)?|por)\s*(\d{2,5})\s*€?/) || idea.match(/(\d{2,5})\s*€/);
+        if (budgetMatch) document.querySelector("#budget").value = budgetMatch[1];
+
+        const adultsMatch = idea.match(/(\d+)\s*(?:adultos?|personas?|parejas?)/);
+        const childrenMatch = idea.match(/(\d+)\s*(?:niños?|ninos?|peques?)/);
+        const inferredAdults = adultsMatch ? Number(adultsMatch[1]) : /pareja|dos personas/.test(idea) ? 2 : adultCount();
+        const inferredChildren = childrenMatch ? Number(childrenMatch[1]) : childCount();
+        if (inferredAdults || inferredChildren) setTravelers(inferredAdults, Array.from({ length: inferredChildren }, () => 8));
+
+        const daysMatch = idea.match(/(\d+)\s*d[ií]as?/);
+        if (daysMatch && Number(daysMatch[1]) > 0) {
+          const start = new Date();
+          const end = new Date(start);
+          end.setDate(start.getDate() + Number(daysMatch[1]));
+          document.querySelector("#startDate").value = displayDate(start);
+          document.querySelector("#endDate").value = displayDate(end);
+          document.querySelector("#startDatePicker").value = localIsoDate(start);
+          document.querySelector("#endDatePicker").value = localIsoDate(end);
+        }
+
+        document.querySelector("#search").scrollIntoView({ behavior: "smooth", block: "center" });
+        render();
+      });
       document.querySelector("#search").addEventListener("submit", (event) => {
         event.preventDefault();
         if (!document.querySelector("#tripStart").value || Number(document.querySelector("#budget").value || 0) <= 0 || !travelers.length || !isoDate(document.querySelector("#startDate").value) || !isoDate(document.querySelector("#endDate").value)) {
