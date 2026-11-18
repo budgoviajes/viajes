@@ -282,14 +282,34 @@ export default function Home() {
     const inferredChildren = childrenMatch ? Number(childrenMatch[1]) : children;
     if (inferredAdults || inferredChildren) setOccupancy(inferredAdults, Array.from({ length: inferredChildren }, () => 8));
 
-    const daysMatch = idea.match(/(\d+)\s*d[ií]as?/);
-    if (daysMatch && Number(daysMatch[1]) > 0) {
-      const start = new Date();
-      const end = new Date(start);
-      end.setDate(start.getDate() + Number(daysMatch[1]));
-      setStartDateText(toDisplayDate(toDateInput(start)));
-      setEndDateText(toDisplayDate(toDateInput(end)));
+    const requestedOrigin = tripStarts.find((origin) => idea.includes(origin.toLowerCase()));
+    if (requestedOrigin) setTripStart(requestedOrigin);
+
+    const months: Record<string, number> = { enero: 0, febrero: 1, marzo: 2, abril: 3, mayo: 4, junio: 5, julio: 6, agosto: 7, septiembre: 8, setiembre: 8, octubre: 9, noviembre: 10, diciembre: 11 };
+    const dateRange = idea.match(/(?:del?|desde(?:\s+el)?|entre)?\s*(\d{1,2})\s*(?:al|a|hasta|-)\s*(\d{1,2})\s+de\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre)(?:\s+de\s+(\d{4}))?/i);
+    if (dateRange) {
+      const [, startDay, endDay, monthName, writtenYear] = dateRange;
+      const year = Number(writtenYear ?? new Date().getFullYear());
+      const month = months[monthName.toLowerCase()];
+      const start = new Date(year, month, Number(startDay));
+      const end = new Date(year, month, Number(endDay));
+      if (start.getMonth() === month && end.getMonth() === month) {
+        setStartDateText(toDisplayDate(toDateInput(start)));
+        setEndDateText(toDisplayDate(toDateInput(end)));
+      }
+    } else {
+      const daysMatch = idea.match(/(\d+)\s*d[ií]as?/);
+      if (daysMatch && Number(daysMatch[1]) > 0) {
+        const start = new Date();
+        const end = new Date(start);
+        end.setDate(start.getDate() + Number(daysMatch[1]));
+        setStartDateText(toDisplayDate(toDateInput(start)));
+        setEndDateText(toDisplayDate(toDateInput(end)));
+      }
     }
+    setResponse(null);
+    setError("");
+    setHasSearched(true);
     document.querySelector("#budgo-search")?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
@@ -334,7 +354,7 @@ export default function Home() {
               <img
                 src="/budgo-logo.png"
                 alt="Budgo"
-                className="h-14 w-32 rounded-xl bg-white p-1 object-contain shadow-lg shadow-blue-950/15"
+                className="h-[72px] w-44 rounded-2xl bg-white p-1.5 object-contain shadow-xl shadow-blue-950/20"
               />
             </div>
             <nav className="hidden items-center gap-7 text-sm font-bold text-white/90 md:flex" aria-label="Navegación principal"><a href="#como-funciona">Cómo funciona</a><a href="#destinos">Inspiración</a><a href="#ofertas">Ofertas</a></nav>
