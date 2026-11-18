@@ -625,8 +625,16 @@
           url("https://images.unsplash.com/photo-1530789253388-582c481c54b0?auto=format&fit=crop&w=2000&q=85") center 58% / cover;
       }
       .topbar { display: flex; min-height: 76px; justify-content: space-between; gap: 26px; }
-      .brand-card { width: auto; padding: 5px 11px; background: white; border-radius: 14px; box-shadow: 0 10px 26px rgba(0, 30, 96, .18); }
-      .logo { width: 178px; height: 70px; object-fit: contain; }
+      .brand-card { width: auto; padding: 0; background: transparent; border-radius: 0; box-shadow: none; }
+      .logo {
+        display: block;
+        width: 270px;
+        height: 94px;
+        object-fit: cover;
+        object-position: center 42%;
+        mix-blend-mode: multiply;
+        filter: contrast(1.12) saturate(1.2);
+      }
       .main-nav { display: flex; align-items: center; gap: 26px; }
       .main-nav a { color: rgba(255,255,255,.92); font-size: 14px; font-weight: 800; }
       .main-nav a:hover { color: #84ffff; }
@@ -686,6 +694,7 @@
       }
       @media (max-width: 640px) {
         .hero { padding: 0 16px 82px; }
+        .logo { width: 190px; height: 68px; }
         .hero-copy { margin-top: 30px; text-align: left; }
         .claim { margin-left: 0; font-size: 38px; }
         .subclaim { font-size: 16px; }
@@ -1312,7 +1321,13 @@
         const childrenMatch = idea.match(/(\d+)\s*(?:niños?|ninos?|peques?)/);
         const inferredAdults = adultsMatch ? Number(adultsMatch[1]) : /pareja|dos personas/.test(idea) ? 2 : adultCount();
         const inferredChildren = childrenMatch ? Number(childrenMatch[1]) : childCount();
-        if (inferredAdults || inferredChildren) setTravelers(inferredAdults, Array.from({ length: inferredChildren }, () => 8));
+        const ageText = (idea.match(/(?:niños?|ninos?|peques?)([\s\S]*)$/i) || [])[1] || "";
+        const writtenChildAges = (ageText.match(/\b(?:1[0-7]|[0-9])\b/g) || []).map(Number).filter((age) => age >= 0 && age < 18);
+        const childAges = Array.from(
+          { length: inferredChildren },
+          (_, index) => writtenChildAges[index] ?? 8,
+        );
+        if (inferredAdults || inferredChildren) setTravelers(inferredAdults, childAges);
 
         const availableOrigins = Array.from(document.querySelector("#tripStart").options).map((option) => option.value).filter(Boolean);
         const requestedOrigin = availableOrigins.find((origin) => idea.includes(origin.toLowerCase()));

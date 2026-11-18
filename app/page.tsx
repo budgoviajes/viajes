@@ -280,7 +280,10 @@ export default function Home() {
     const childrenMatch = idea.match(/(\d+)\s*(?:niños?|ninos?|peques?)/);
     const inferredAdults = adultsMatch ? Number(adultsMatch[1]) : /pareja|dos personas/.test(idea) ? 2 : adults;
     const inferredChildren = childrenMatch ? Number(childrenMatch[1]) : children;
-    if (inferredAdults || inferredChildren) setOccupancy(inferredAdults, Array.from({ length: inferredChildren }, () => 8));
+    const ageText = idea.match(/(?:niños?|ninos?|peques?)([\s\S]*)$/i)?.[1] ?? "";
+    const writtenChildAges = (ageText.match(/\b(?:1[0-7]|[0-9])\b/g) ?? []).map(Number).filter((age) => age >= 0 && age < 18);
+    const childAges = Array.from({ length: inferredChildren }, (_, index) => writtenChildAges[index] ?? 8);
+    if (inferredAdults || inferredChildren) setOccupancy(inferredAdults, childAges);
 
     const requestedOrigin = tripStarts.find((origin) => idea.includes(origin.toLowerCase()));
     if (requestedOrigin) setTripStart(requestedOrigin);
@@ -354,7 +357,7 @@ export default function Home() {
               <img
                 src="/budgo-logo.png"
                 alt="Budgo"
-                className="h-[72px] w-44 rounded-2xl bg-white p-1.5 object-contain shadow-xl shadow-blue-950/20"
+                className="h-24 w-[270px] object-cover [object-position:center_42%] mix-blend-multiply contrast-125 saturate-125 max-sm:h-[68px] max-sm:w-[190px]"
               />
             </div>
             <nav className="hidden items-center gap-7 text-sm font-bold text-white/90 md:flex" aria-label="Navegación principal"><a href="#como-funciona">Cómo funciona</a><a href="#destinos">Inspiración</a><a href="#ofertas">Ofertas</a></nav>
