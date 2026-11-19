@@ -373,11 +373,11 @@ export default function Home() {
       <section className="relative overflow-hidden bg-[linear-gradient(100deg,rgba(2,50,137,.97),rgba(1,92,183,.91),rgba(1,106,186,.62)),url('https://images.unsplash.com/photo-1530789253388-582c481c54b0?auto=format&fit=crop&w=2000&q=85')] bg-cover bg-center px-4 pb-28 pt-3 text-white sm:px-8 lg:px-12">
         <div className="mx-auto max-w-7xl">
           <header className="flex min-h-16 items-center justify-between gap-5">
-            <div>
+            <div className="h-[102px] w-[292px] rounded-[18px] border border-white/40 bg-gradient-to-br from-white/75 to-white/20 px-2.5 py-1 backdrop-blur-md shadow-xl shadow-blue-950/20 max-sm:h-[76px] max-sm:w-[210px] max-sm:rounded-[14px]">
               <img
                 src="/budgo-logo.png"
                 alt="Budgo"
-                className="h-24 w-[270px] object-cover [object-position:center_42%] mix-blend-multiply contrast-125 saturate-125 max-sm:h-[68px] max-sm:w-[190px]"
+                className="h-24 w-[270px] object-cover [object-position:center_42%] mix-blend-multiply contrast-150 saturate-125 max-sm:h-[68px] max-sm:w-[190px]"
               />
             </div>
             <nav className="hidden items-center gap-7 text-sm font-bold text-white/90 md:flex" aria-label="Navegación principal"><a href="#como-funciona">Cómo funciona</a><a href="#destinos">Inspiración</a><a href="#ofertas">Ofertas</a></nav>
