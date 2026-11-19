@@ -188,6 +188,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [travelIdea, setTravelIdea] = useState("");
   const [activeMood, setActiveMood] = useState("Para ti");
+  const [visibleDestinationCount, setVisibleDestinationCount] = useState(6);
 
   const startDate = toIsoDate(startDateText);
   const endDate = toIsoDate(endDateText);
@@ -220,7 +221,24 @@ export default function Home() {
     return option.id === "tenerife";
   });
   const topOption = visibleOptions[0];
+  const displayedOptions = visibleOptions.slice(0, visibleDestinationCount);
   const activeExtras = serviceOptions.filter((service) => includeServices[service.key]);
+  const ideaSummary = useMemo(() => {
+    const idea = travelIdea.trim().toLowerCase();
+    if (!idea) return "";
+    const parts: string[] = [];
+    const origin = tripStarts.find((item) => idea.includes(item.toLowerCase()));
+    const budgetMatch = idea.match(/(?:hasta|presupuesto(?: de)?|por)\s*(\d{2,5})\s*€?/) ?? idea.match(/(\d{2,5})\s*€/);
+    const adultsMatch = idea.match(/(\d+)\s*(?:adultos?|personas?)/);
+    const childrenMatch = idea.match(/(\d+)\s*(?:niños?|ninos?|peques?)/);
+    const range = idea.match(/(?:del?|desde(?:\s+el)?|entre)?\s*(\d{1,2})\s*(?:al|a|hasta|-)\s*(\d{1,2})\s+de\s+([a-záéíóúñ]+)/i);
+    if (origin) parts.push(origin);
+    if (budgetMatch) parts.push(`${budgetMatch[1]} €`);
+    if (range) parts.push(`${range[1]}–${range[2]} ${range[3]}`);
+    if (adultsMatch) parts.push(`${adultsMatch[1]} adultos`);
+    if (childrenMatch) parts.push(`${childrenMatch[1]} niños`);
+    return parts.length ? `Entendido: ${parts.join(" · ")}` : "Escribe origen, presupuesto, fechas o viajeros para preparar tu búsqueda.";
+  }, [travelIdea]);
 
   useEffect(() => {
     const saved = localStorage.getItem(searchStorageKey);
@@ -270,8 +288,8 @@ export default function Home() {
     setTravelers((current) => current.map((traveler) => traveler.id === id ? { ...traveler, age } : traveler));
   }
 
-  function prepareIdea() {
-    const idea = travelIdea.trim().toLowerCase();
+  function prepareIdea(rawIdea = travelIdea) {
+    const idea = rawIdea.trim().toLowerCase();
     if (!idea) return;
     const budgetMatch = idea.match(/(?:hasta|presupuesto(?: de)?|por)\s*(\d{2,5})\s*€?/) ?? idea.match(/(\d{2,5})\s*€/);
     if (budgetMatch) setBudget(Number(budgetMatch[1]));
@@ -313,6 +331,7 @@ export default function Home() {
     setResponse(null);
     setError("");
     setHasSearched(true);
+    setVisibleDestinationCount(6);
     document.querySelector("#budgo-search")?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
@@ -324,6 +343,7 @@ export default function Home() {
     }
     localStorage.setItem(searchStorageKey, JSON.stringify({ ...requestPayload, savedAt: Date.now() }));
     setHasSearched(true);
+    setVisibleDestinationCount(6);
     setIsLoading(true);
     setError("");
 
@@ -350,7 +370,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[#F4F8FA] text-slate-900">
-      <section className="relative overflow-hidden bg-[linear-gradient(100deg,rgba(2,50,137,.96),rgba(1,92,183,.88),rgba(1,106,186,.42)),url('https://images.unsplash.com/photo-1530789253388-582c481c54b0?auto=format&fit=crop&w=2000&q=85')] bg-cover bg-center px-4 pb-28 pt-3 text-white sm:px-8 lg:px-12">
+      <section className="relative overflow-hidden bg-[linear-gradient(100deg,rgba(2,50,137,.97),rgba(1,92,183,.91),rgba(1,106,186,.62)),url('https://images.unsplash.com/photo-1530789253388-582c481c54b0?auto=format&fit=crop&w=2000&q=85')] bg-cover bg-center px-4 pb-28 pt-3 text-white sm:px-8 lg:px-12">
         <div className="mx-auto max-w-7xl">
           <header className="flex min-h-16 items-center justify-between gap-5">
             <div>
@@ -371,6 +391,7 @@ export default function Home() {
               <input value={travelIdea} onChange={(event) => setTravelIdea(event.target.value)} placeholder="Ej.: 4 días de playa en junio, para dos personas, hasta 900 €" className="min-w-0 flex-1 bg-transparent px-1 py-2 font-bold text-slate-800 outline-none" aria-label="Describe tu viaje ideal" />
               <button type="button" onClick={prepareIdea} className="w-full shrink-0 rounded-xl bg-gradient-to-br from-cyan-400 to-[#0076E8] px-5 py-3 font-black text-white shadow-lg sm:w-auto">Preparar búsqueda</button>
             </div>
+            <p className="mt-2 min-h-5 text-sm font-bold text-cyan-100" aria-live="polite">{ideaSummary}</p>
             <p className="mt-3 text-xs text-white/75">Cuéntanos tu idea y prepararemos el formulario para ti.</p>
           </div>
         </div>
@@ -514,7 +535,7 @@ export default function Home() {
             <div className="mb-5 flex flex-wrap gap-2" aria-label="Ideas de viaje">{["Para ti", "Playa", "Ciudad", "Naturaleza", "Pareja", "Familia"].map((filter) => <button type="button" key={filter} onClick={() => setActiveMood(filter)} className={`rounded-full border px-4 py-2 text-sm font-bold transition ${activeMood === filter ? "border-[#0156A6] bg-[#0156A6] text-white" : "border-slate-200 bg-white text-slate-700 hover:border-[#0156A6]"}`}>{filter}</button>)}</div>
 
             <div className="mb-4 rounded-md border border-[#18C4C7]/40 bg-[#EAFBFB] px-4 py-3 text-sm leading-relaxed text-slate-700">
-              <strong>Información importante:</strong> Budgo no muestra precios ni disponibilidad de Booking. Estas propuestas son orientativas; confirma siempre el precio final, impuestos, disponibilidad y condiciones en Booking.com.
+              <strong>Estimaciones Budgo:</strong> confirma siempre el precio final y la disponibilidad en Booking.com.
             </div>
 
             {error ? (
@@ -528,7 +549,7 @@ export default function Home() {
                 <h3 className="text-xl font-black">Empieza por una idea</h3>
                 <p className="mt-2 text-slate-500">Completa la búsqueda o inspírate con estas escapadas. Budgo te ayudará a ajustar el viaje a tu presupuesto.</p>
                 <div className="mt-5 grid gap-3 md:grid-cols-3">
-                  {[['Escapada de playa', 'Sol, costa y desconexión para unos días.', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80'], ['Fin de semana cultural', 'Ciudades con historia, gastronomía y paseos.', 'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=800&q=80'], ['Naturaleza en familia', 'Rutas y planes para viajar con calma.', 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80']].map(([title, copy, image]) => <div key={title} className="min-h-40 rounded-xl bg-cover bg-center p-4 text-white" style={{ backgroundImage: `linear-gradient(145deg, rgba(1,86,166,.88), rgba(24,196,199,.62)), url(${image})` }}><strong className="text-lg">{title}</strong><p className="mt-2 text-sm text-white/90">{copy}</p></div>)}
+                  {[['Escapada de playa', 'Sol, costa y desconexión para unos días.', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', '4 días de playa para dos personas hasta 900 €'], ['Fin de semana cultural', 'Ciudades con historia, gastronomía y paseos.', 'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=800&q=80', '3 días de ciudad para dos personas hasta 700 €'], ['Naturaleza en familia', 'Rutas y planes para viajar con calma.', 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80', '4 días de naturaleza para 2 adultos y 2 niños hasta 1200 €']].map(([title, copy, image, idea]) => <button type="button" key={title} onClick={() => { setTravelIdea(idea); prepareIdea(idea); }} className="min-h-40 rounded-xl bg-cover bg-center p-4 text-left text-white transition hover:-translate-y-1 hover:shadow-xl" style={{ backgroundImage: `linear-gradient(145deg, rgba(1,86,166,.88), rgba(24,196,199,.62)), url(${image})` }}><strong className="text-lg">{title}</strong><p className="mt-2 text-sm text-white/90">{copy}</p></button>)}
                 </div>
               </div>
             ) : visibleOptions.length === 0 ? (
@@ -540,7 +561,7 @@ export default function Home() {
               </div>
             ) : (
               <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                {visibleOptions.map((option, index) => {
+                {displayedOptions.map((option, index) => {
                   const percent = Math.min(100, Math.round((option.total / budget) * 100));
                   const key = `${option.id}-${option.accommodationName}-${index}`;
 
@@ -634,6 +655,8 @@ export default function Home() {
                 })}
               </div>
             )}
+
+            {hasSearched && visibleOptions.length > displayedOptions.length ? <button type="button" onClick={() => setVisibleDestinationCount((current) => current + 6)} className="mt-5 w-full rounded-xl border border-[#0156A6] bg-white px-4 py-3 font-black text-[#0156A6] hover:bg-blue-50">Ver más destinos ({visibleOptions.length - displayedOptions.length})</button> : null}
 
             <section id="ofertas" className="mt-6 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-white p-5 shadow-sm">
               <h3 className="text-lg font-bold">Comprueba la disponibilidad real en Booking.com</h3>
