@@ -370,19 +370,19 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[#F4F8FA] text-slate-900">
-      <section className="relative overflow-hidden bg-[linear-gradient(100deg,rgba(2,50,137,.97),rgba(1,92,183,.91),rgba(1,106,186,.62)),url('https://images.unsplash.com/photo-1530789253388-582c481c54b0?auto=format&fit=crop&w=2000&q=85')] bg-cover bg-center px-4 pb-28 pt-3 text-white sm:px-8 lg:px-12">
+      <section className="relative min-h-[620px] overflow-hidden bg-cover bg-[center_58%] px-4 pb-28 pt-3 text-white sm:px-8 lg:px-12" style={{ backgroundImage: "linear-gradient(100deg, rgba(1, 48, 122, .78) 0%, rgba(2, 97, 181, .48) 53%, rgba(0, 95, 163, .15) 100%), url('/budgo-hero-mediterraneo.png')" }}>
         <div className="mx-auto max-w-7xl">
-          <header className="flex min-h-16 items-center justify-between gap-5">
-            <div className="h-[102px] w-[292px] rounded-[18px] border border-white/40 bg-gradient-to-br from-white/75 to-white/20 px-2.5 py-1 backdrop-blur-md shadow-xl shadow-blue-950/20 max-sm:h-[76px] max-sm:w-[210px] max-sm:rounded-[14px]">
+          <header className="flex min-h-[136px] items-center justify-between gap-5 max-sm:min-h-[94px]">
+            <div className="h-32 w-[390px] max-sm:h-[86px] max-sm:w-[230px]">
               <img
-                src="/budgo-logo.png"
+                src="/budgo-logo-transparent.png"
                 alt="Budgo"
-                className="h-24 w-[270px] object-cover [object-position:center_42%] mix-blend-multiply contrast-150 saturate-125 max-sm:h-[68px] max-sm:w-[190px]"
+                className="h-32 w-[390px] object-contain object-left drop-shadow-[0_0_2px_rgba(255,255,255,.88)] drop-shadow-[0_9px_18px_rgba(0,21,70,.42)] max-sm:h-[86px] max-sm:w-[230px]"
               />
             </div>
             <nav className="hidden items-center gap-7 text-sm font-bold text-white/90 md:flex" aria-label="Navegación principal"><a href="#como-funciona">Cómo funciona</a><a href="#destinos">Inspiración</a><a href="#ofertas">Ofertas</a></nav>
           </header>
-          <div className="mx-auto mt-12 max-w-4xl text-center sm:mt-16">
+          <div className="mx-auto mt-10 max-w-4xl text-center sm:mt-11">
             <span className="inline-flex rounded-full border border-white/25 bg-white/10 px-4 py-2 text-xs font-bold text-white/85">Tu presupuesto marca el camino</span>
             <h1 className="mt-5 text-4xl font-black leading-[.98] tracking-[-.05em] sm:text-6xl lg:text-7xl">Tu próxima escapada,<br />dentro de tu presupuesto.</h1>
             <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-white/85 sm:text-lg">Dinos cuánto quieres gastar y Budgo encuentra destinos que encajan contigo.</p>

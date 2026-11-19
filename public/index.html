@@ -618,36 +618,30 @@
       .hero {
         position: relative;
         overflow: hidden;
-        min-height: 540px;
+        min-height: 620px;
         padding: 0 42px 118px;
         background:
-          linear-gradient(100deg, rgba(2, 50, 137, .97) 0%, rgba(1, 92, 183, .91) 52%, rgba(1, 106, 186, .62) 100%),
-          url("https://images.unsplash.com/photo-1530789253388-582c481c54b0?auto=format&fit=crop&w=2000&q=85") center 58% / cover;
+          linear-gradient(100deg, rgba(1, 48, 122, .78) 0%, rgba(2, 97, 181, .48) 53%, rgba(0, 95, 163, .15) 100%),
+          url("/budgo-hero-mediterraneo.png") center 58% / cover;
       }
-      .topbar { display: flex; min-height: 76px; justify-content: space-between; gap: 26px; }
+      .topbar { display: flex; min-height: 136px; justify-content: space-between; gap: 26px; }
       .brand-card {
-        width: 292px;
-        height: 102px;
-        padding: 4px 10px;
-        border: 1px solid rgba(255,255,255,.42);
-        border-radius: 18px;
-        background: linear-gradient(135deg, rgba(255,255,255,.74), rgba(255,255,255,.22));
-        box-shadow: 0 12px 30px rgba(0, 25, 80, .18);
-        backdrop-filter: blur(10px);
+        width: 392px;
+        height: 128px;
+        padding: 0;
       }
       .logo {
         display: block;
-        width: 270px;
-        height: 94px;
-        object-fit: cover;
-        object-position: center 42%;
-        mix-blend-mode: multiply;
-        filter: contrast(1.35) saturate(1.25);
+        width: 390px;
+        height: 128px;
+        object-fit: contain;
+        object-position: left center;
+        filter: drop-shadow(0 0 2px rgba(255,255,255,.88)) drop-shadow(0 9px 18px rgba(0, 21, 70, .42));
       }
       .main-nav { display: flex; align-items: center; gap: 26px; }
       .main-nav a { color: rgba(255,255,255,.92); font-size: 14px; font-weight: 800; }
       .main-nav a:hover { color: #84ffff; }
-      .hero-copy { max-width: 910px; margin: 68px auto 0; text-align: center; }
+      .hero-copy { max-width: 910px; margin: 42px auto 0; text-align: center; }
       .tag { border-radius: 999px; padding: 8px 13px; font-size: 12px; }
       .claim { max-width: 860px; margin: 16px auto 0; font-size: clamp(38px, 5.4vw, 70px); letter-spacing: -.045em; }
       .subclaim { max-width: 710px; margin: 17px auto 0; font-size: 18px; color: rgba(255,255,255,.88); }
@@ -711,8 +705,9 @@
       }
       @media (max-width: 640px) {
         .hero { padding: 0 16px 82px; }
-        .brand-card { width: 210px; height: 76px; border-radius: 14px; }
-        .logo { width: 190px; height: 68px; }
+        .topbar { min-height: 94px; }
+        .brand-card { width: 230px; height: 86px; }
+        .logo { width: 230px; height: 86px; }
         .hero-copy { margin-top: 30px; text-align: left; }
         .claim { margin-left: 0; font-size: 38px; }
         .subclaim { font-size: 16px; }
@@ -732,7 +727,7 @@
         <div class="wrap">
           <header class="topbar">
             <div class="brand-card">
-              <img class="logo" src="/budgo-logo.png" alt="Budgo" />
+              <img class="logo" src="/budgo-logo-transparent.png" alt="Budgo" />
             </div>
             <nav class="main-nav" aria-label="Navegación principal">
               <a href="#como-funciona">Cómo funciona</a>
